@@ -88,7 +88,7 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         run(self.python_package.cmd.flake8(*args).in_dir(self.path.project))
 
     def assert_request_response_contains(self, url, contains, method="get"):
-        assert contains in requests.get(url).content.decode('utf8')
+        assert contains in getattr(requests, method)(url).content.decode('utf8')
 
     def pause(self, message=""):
         if hasattr(self, 'services'):

@@ -1,0 +1,17 @@
+- name: Make http request
+  tags:
+    - request
+  preconditions:
+    config_name: "config.http"
+    config_files:
+      config.http: |
+        - request:
+            path: /hello
+            method: post
+          response:
+            content: <html><body>hello</body></html>
+  scenario:
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        method: post
+        contains: hello
