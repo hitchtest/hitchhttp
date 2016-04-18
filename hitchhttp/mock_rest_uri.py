@@ -1,16 +1,17 @@
 import re
 import xeger
-import urlparse
+from urllib import parse as urlparse
 import urllib
-import status_codes
+from hitchhttp import status_codes
 
 
 class MockRestURI(object):
     """Representation of a mock URI."""
     def __init__(self, uri_dict):
         self.name = uri_dict.get('name', None)
-        self._regexp = uri_dict.get('regexp', False)
-        self.fullpath = uri_dict.get('path', '/')
+        self.fullpath = uri_dict['request']['path']
+        #self._regexp = uri_dict['request']['path']
+        self._regexp = False
 
         if not self._regexp:
             self.path = urlparse.urlparse(self.fullpath).path
@@ -18,13 +19,13 @@ class MockRestURI(object):
         else:
             self.path = self.fullpath
 
-        self.method = uri_dict.get('method', 'GET')
-        self.return_code = int(uri_dict.get('return-code', '200'))
-        self.response_content_type = uri_dict.get('response-content-type', 'text/plain')
-        self.response_location = uri_dict.get('response-location', None)
-        self.response_content = uri_dict.get('response-content')
-        self.wait = float(uri_dict.get('wait', 0.0))
-        self.request_data = uri_dict.get('request-data', None)
+        self.method = uri_dict['request'].get('method', 'GET')
+        self.return_code = int(uri_dict['response'].get('code', '200'))
+        self.response_content_type = uri_dict['response'].get('content-type', 'text/plain')
+        self.response_location = uri_dict['response'].get('location', None)
+        self.response_content = uri_dict['response'].get('content', "")
+        self.wait = float(uri_dict['response'].get('wait', 0.0))
+        self.request_data = uri_dict['request'].get('data', None)
 
     def match(self, request):
         """Does this URI match the request?"""

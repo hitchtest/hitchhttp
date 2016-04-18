@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*
 from setuptools import setup, find_packages
 import os
 import codecs
@@ -10,30 +11,35 @@ def read(*parts):
 
 long_description = read('README.rst')
 
-setup(name="hitchapi",
-      version="0.1",
-      description="Mock REST server and example code generator for the Hitch testing framework",
+setup(name="hitchhttp",
+      version=read('VERSION').replace('\n', ''),
+      description="Mock HTTP server and example code generator for the Hitch testing framework",
       long_description=long_description,
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
-          'License :: OSI Approved :: MIT License',
-          'Topic :: Software Development :: Build Tools',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.6',
-          'Programming Language :: Python :: 2.7',
-#          'Programming Language :: Python :: 3',
-#          'Programming Language :: Python :: 3.1',
-#          'Programming Language :: Python :: 3.2',
-#          'Programming Language :: Python :: 3.3',
+          'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+          'Topic :: Software Development :: Quality Assurance',
+          'Topic :: Software Development :: Testing',
+          'Topic :: Software Development :: Libraries',
+          'Operating System :: Unix',
+          'Environment :: Console',
+          #'Programming Language :: Python :: 2',
+          #'Programming Language :: Python :: 2.6',
+          #'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.2',
+          'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
       ],
-      keywords='development environment tool mock rest yaml testing server hitch',
+      keywords='hitch testing framework bdd tdd declarative tests testing api http',
       author='Colm O\'Connor',
       author_email='colm.oconnor.github@gmail.com',
-      url='https://hitch.readthedocs.org/',
-      license='MIT',
-      install_requires=['xeger', 'pyyaml', 'jinja2', 'clip.py>=0.2.0', 'hitchserve', ],
+      url='https://hitchtest.readthedocs.org/',
+      license='AGPL',
+      install_requires=['xeger', 'pyyaml', 'jinja2', 'click', 'hitchserve', 'hitchtest', ],
       packages=find_packages(exclude=[]),
-      entry_points=dict(console_scripts=['hitchapi=hitchapi:main', ]),
+      entry_points=dict(console_scripts=['hitchhttp=hitchhttp:main', ]),
       zip_safe=False,
 )

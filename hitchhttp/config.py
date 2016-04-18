@@ -1,4 +1,4 @@
-from mock_rest_uri import MockRestURI
+from hitchhttp.mock_rest_uri import MockRestURI
 import yaml
 import re
 import sys
@@ -14,16 +14,16 @@ class MockRestConfig(object):
             try:
                 with open(filename, 'r') as config_yaml_handle:
                     self._config = yaml.safe_load(config_yaml_handle.read())
-            except Exception, e:
+            except Exception as e:
                 sys.stderr.write("Error reading yaml config file: {0}\n".format(str(e)))
                 sys.exit(1)
 
             # Read and store all references to external content files
-            for group in self._config:
-                for uri_dict in group.get('uris', []):
-                    if uri_dict.get('response-content-file', False) == True:
-                        with open(os.path.dirname(filename) + os.sep + uri_dict['response-content'], 'r') as content_file_handle:
-                            uri_dict['response_content'] = content_file_handle.read()
+            for pair in self._config:
+                content = pair.get('response', {}).get('content')
+                if "filename" in content:
+                    with open(content['filename'], 'r') as content_file_handle:
+                        pair['content'] = content_file_handle.read()
 
     def get_matching_uri(self, request):
         """Get a URI from the config with a specific method/path (or return None if nothing matches)."""
@@ -44,7 +44,8 @@ class MockRestConfig(object):
 
     def all_uris(self):
         uri_list = []
-        for group_dict in self._config:
-            for uri_dict in group_dict.get('uris', []):
-                uri_list.append(MockRestURI(uri_dict))
+        for pair in self._config:
+            uri_list.append(MockRestURI(pair))
+            #for uri_dict in group_dict.get('uris', []):
+                #uri_list.append(MockRestURI(uri_dict))
         return uri_list

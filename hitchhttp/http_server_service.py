@@ -1,0 +1,12 @@
+from hitchserve import Service
+import sys
+
+
+class HttpServer(Service):
+    def __init__(self, path, port=10088, **kwargs):
+        kwargs['command'] = [
+            sys.executable, "-u", "-m", "hitchhttp.commandline", "serve",
+            "--port", str(port), str(path)
+        ]
+        kwargs['log_line_ready_checker'] = lambda line: "HTTP server running" in line
+        super(HttpServer, self).__init__(**kwargs)

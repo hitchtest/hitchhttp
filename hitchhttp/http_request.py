@@ -1,22 +1,22 @@
 import re
-import urlparse
+from urllib import parse as urlparse
 import cgi
 import json
 
 
-class SaddleRequest(object):
+class MockRequest(object):
     """Representation of a request."""
     def __init__(self, command, path, headers, rfile):
         self.command = command
         self.path = path
-        self.headers = headers.dict
+        self.headers = dict(headers._headers)
         self.ctype = None
         self.length = 0
         self.request_data = None
 
-        if headers.getheader('content-type') is not None:
-            self.ctype, pdict = cgi.parse_header(headers.getheader('content-type'))
-            self.length = int(headers.getheader('content-length'))
+        if headers.get('content-type') is not None:
+            self.ctype, pdict = cgi.parse_header(headers.get('content-type'))
+            self.length = int(headers.get('content-length', "-1"))
 
             if self.ctype == 'application/x-www-form-urlencoded':
                 self.request_data = cgi.parse_qs(rfile.read(self.length), keep_blank_values=1)
