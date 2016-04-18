@@ -8,5 +8,5 @@ class HttpServer(Service):
             sys.executable, "-u", "-m", "hitchhttp.commandline", "serve",
             "--port", str(port), str(path)
         ]
-        kwargs['log_line_ready_checker'] = lambda line: "HTTP server running" in line
+        kwargs['log_line_ready_checker'] = lambda line: "HitchHttp running" in line
         super(HttpServer, self).__init__(**kwargs)
