@@ -16,14 +16,18 @@ class MockRequest(object):
 
         if headers.get('content-type') is not None:
             self.ctype, pdict = cgi.parse_header(headers.get('content-type'))
-            self.length = int(headers.get('content-length', "-1"))
+            self.length = int(headers.get('content-length', "0"))
 
             if self.ctype == 'application/x-www-form-urlencoded':
                 self.request_data = cgi.parse_qs(rfile.read(self.length), keep_blank_values=1)
             elif self.ctype == 'multipart/form-data':
                 self.request_data = cgi.parse_multipart(rfile, pdict)
             elif self.ctype == 'application/json':
-                self.request_data = json.loads(rfile.read(self.length).decode('utf-8'))
+                contents_of_request = rfile.read(self.length).decode('utf-8')
+                try:
+                    self.request_data = json.loads(contents_of_request)
+                except ValueError:
+                    self.request_data = contents_of_request
             else:
                 self.request_data = rfile.read(self.length).decode('utf-8')
 
