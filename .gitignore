@@ -4,5 +4,6 @@ setup.cfg
 setup.cfg
 build/
 dist/
+state/
 hitchhttp.egg-info/
 .hitch
