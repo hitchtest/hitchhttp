@@ -31,7 +31,7 @@ class MockRestHandler(BaseHTTPRequestHandler):
                 self.send_header('Location', uri.response_location)
             self.end_headers()
             self.wfile.write(uri.response_content.encode('utf8'))
-            #self.wfile.close()
+            self.wfile.flush()
             sys.stdout.write(u"{0}\n".format(json.dumps(request.to_dict(uri.name))))
             sys.stdout.flush()
         else:
@@ -39,7 +39,7 @@ class MockRestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(self.default_response.format(self.path).encode('utf8'))
-            #self.wfile.close()
+            self.wfile.flush()
             sys.stdout.write(u"{0}\n".format(json.dumps(request.to_dict(None))))
             sys.stdout.flush()
 

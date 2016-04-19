@@ -89,8 +89,17 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         run(self.pip("install", "flake8"))
         run(self.python_package.cmd.flake8(*args).in_dir(self.path.project))
 
-    def assert_request_response_contains(self, url, contains, method="get"):
-        assert contains in getattr(requests, method)(url).content.decode('utf8')
+    def assert_request_response_contains(self, url, contains, method="get", data=None, headers=None, timeout=30):
+        response = getattr(requests, method)(
+            url,
+            data=data,
+            headers=headers,
+            timeout=timeout
+        ).content.decode('utf8')
+        try:
+            assert contains in response
+        except AssertionError:
+            raise AssertionError("{0} not found in {1}".format(contains, response))
 
     def pause(self, message=""):
         if hasattr(self, 'services'):

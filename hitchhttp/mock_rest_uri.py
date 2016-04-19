@@ -19,33 +19,42 @@ class MockRestURI(object):
         else:
             self.path = self.fullpath
 
-        self.method = uri_dict['request'].get('method', 'GET')
+        self.method = uri_dict['request'].get('method', None)
         self.return_code = int(uri_dict['response'].get('code', '200'))
         self.response_content_type = uri_dict['response'].get('content-type', 'text/plain')
         self.response_location = uri_dict['response'].get('location', None)
         self.response_content = uri_dict['response'].get('content', "")
         self.wait = float(uri_dict['response'].get('wait', 0.0))
         self.request_data = uri_dict['request'].get('data', None)
+        self.querystring = uri_dict['request'].get("querystring", {})
+        self.encoding = uri_dict['request'].get("encoding", None)
 
     def match(self, request):
         """Does this URI match the request?"""
-        if request.command != self.method:
-            return False
 
-        if not self._regexp and self.path != request.basepath():
-            return False
+        # Match HTTP verb - GET, POST, PUT, DELETE, etc.
+        if self.method is not None:
+            if request.command.lower() != self.method.lower():
+                return False
 
-        if self._regexp and re.compile(self.path).match(request.path) is not None:
-            return False
+        #if not self._regexp and self.path != request.basepath():
+            #return False
 
+        #if self._regexp and re.compile(self.path).match(request.path) is not None:
+            #return False
+
+        # Match querystring
         if request.querystring() != self.querystring:
             return False
 
+        # Match processed request data
         if self.request_data is not None:
-            if self.request_data.get("encoding") != request.ctype:
+            if request.request_data != self.request_data:
                 return False
 
-            if self.request_data.get(values, []) != request.request_data:
+        # Match encoding
+        if self.encoding is not None:
+            if request.ctype != self.encoding:
                 return False
 
         return True
