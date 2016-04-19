@@ -117,4 +117,5 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         """Clean out the state directory."""
         if hasattr(self, 'services'):
             self.services.shutdown()
-        self.path.state.rmtree(ignore_errors=True)
+        if self.settings.get("leavestate", True):
+            self.path.state.rmtree(ignore_errors=True)
