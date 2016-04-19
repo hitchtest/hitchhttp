@@ -40,6 +40,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         run(self.pip("install", ".").in_dir(self.path.project))
         run(self.pip("install", "ipykernel"))
         run(self.pip("install", "pip"))
+        run(self.pip("install", "q"))
+        run(self.pip("install", "pudb"))
 
         for config_filename, config_filecontents in self.preconditions.get("config_files", {}).items():
             self.path.state.joinpath(config_filename).write_text(config_filecontents)
