@@ -29,14 +29,13 @@ class MockRestURI(object):
 
     def match(self, request):
         """Does this URI match the request?"""
-
         # Match HTTP verb - GET, POST, PUT, DELETE, etc.
         if self.method is not None:
             if request.command.lower() != self.method.lower():
                 return False
 
         # Match path
-        if self.path != request.path:
+        if self.path != urlparse.urlparse(request.path).path:
             return False
 
         # Match headers
