@@ -1,6 +1,7 @@
-- name: Make http request
+- name: Make http request matching querystring
   tags:
     - request
+    - querystring
   preconditions:
     config_name: "config.http"
     config_files:
@@ -8,10 +9,25 @@
         - request:
             path: /hello
             querystring:
-              variable: value2
+              variable:
+                - value
           response:
-            content: <html><body>hello</body></html>
+            content: <html><body>correct1</body></html>
+        - request:
+            path: /hello
+            querystring:
+              variable:
+                - value1
+                - value2
+          response:
+            content: <html><body>correct2</body></html>
   scenario:
     - Assert request response contains:
         url: http://localhost:10088/hello?variable=value
-        contains: hello
+        contains: correct1
+    - Assert request response contains:
+        url: http://localhost:10088/hello?variable=value1&variable=value2
+        contains: correct2
+    - Assert request response contains:
+        url: http://localhost:10088/hello?variable=value2
+        contains: No matching
