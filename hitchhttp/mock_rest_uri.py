@@ -13,11 +13,8 @@ class MockRestURI(object):
         #self._regexp = uri_dict['request']['path']
         self._regexp = False
 
-        if not self._regexp:
-            self.path = urlparse.urlparse(self.fullpath).path
-            self.querystring = urlparse.parse_qs(urlparse.urlparse(self.fullpath).query)
-        else:
-            self.path = self.fullpath
+        self.path = urlparse.urlparse(self.fullpath).path
+        self.querystring = urlparse.parse_qs(urlparse.urlparse(self.fullpath).query)
 
         self.method = uri_dict['request'].get('method', None)
         self.headers = uri_dict['request'].get('headers', None)
@@ -37,6 +34,10 @@ class MockRestURI(object):
         if self.method is not None:
             if request.command.lower() != self.method.lower():
                 return False
+
+        # Match path
+        if self.path != request.path:
+            return False
 
         # Match headers
         if self.headers is not None:

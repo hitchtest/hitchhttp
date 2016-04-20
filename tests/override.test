@@ -6,15 +6,15 @@
     config_files:
       config.http: |
         - request:
-            path: /hello
+            path: /hello1
           response:
             content: <html><body>correct1</body></html>
 
         - request:
-            path: /hello
+            path: /hello2
           response:
             content: <html><body>correct2</body></html>
   scenario:
     - Assert request response contains:
-        url: http://localhost:10088/hello
-        contains: correct1
+        url: http://localhost:10088/hello2
+        contains: correct2
