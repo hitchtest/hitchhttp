@@ -1,4 +1,5 @@
 from hitchhttp.mock_rest_uri import MockRestURI
+from os import path
 import yaml
 import re
 import sys
@@ -22,7 +23,7 @@ class MockRestConfig(object):
             for pair in self._config:
                 content = pair.get('response', {}).get('content')
                 if "file" in content:
-                    with open(content['file'], 'r') as content_file_handle:
+                    with open(path.join(path.dirname(filename), content['file']), 'r') as content_file_handle:
                         pair['response']['content'] = content_file_handle.read()
 
     def get_matching_uri(self, request):
