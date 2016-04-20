@@ -21,9 +21,9 @@ class MockRestConfig(object):
             # Read and store all references to external content files
             for pair in self._config:
                 content = pair.get('response', {}).get('content')
-                if "filename" in content:
-                    with open(content['filename'], 'r') as content_file_handle:
-                        pair['content'] = content_file_handle.read()
+                if "file" in content:
+                    with open(content['file'], 'r') as content_file_handle:
+                        pair['response']['content'] = content_file_handle.read()
 
     def get_matching_uri(self, request):
         """Get a URI from the config with a specific method/path (or return None if nothing matches)."""
