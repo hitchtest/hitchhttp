@@ -1,4 +1,4 @@
-- name: Make emtpy application/json http request
+- name: Make application/json http request
   tags:
     - request
   preconditions:
@@ -22,7 +22,6 @@
         headers:
           Content-Type: application/json
         contains: correct
-        timeout: 1000
     - Assert request response contains:
         url: http://localhost:10088/hello
         data: >
