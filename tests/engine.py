@@ -52,37 +52,20 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             shutdown_timeout=1.0
         )
 
-        #self.services['IPython'] = hitchpython.IPythonKernelService(self.python_package)
-
-
-        self.services['MockHttp'] = hitchserve.Service(
-            command=self.python(
-                "-u", "-m", "hitchhttp.commandline", "serve",
-                str(self.path.state.joinpath(self.preconditions.get("config_name", "")))
-            ),
-            log_line_ready_checker=lambda line: "HitchHttp running" in line,
-            directory=str(self.path.state),
-        )
+        if self.preconditions.get("runservices", True):
+            self.services['MockHttp'] = hitchserve.Service(
+                command=self.python(
+                    "-u", "-m", "hitchhttp.commandline", "serve",
+                    str(self.path.state.joinpath(self.preconditions.get("config_name", "")))
+                ),
+                log_line_ready_checker=lambda line: "HitchHttp running" in line,
+                directory=str(self.path.state),
+            )
 
         self.services.startup(interactive=False)
-        #self.ipython_kernel_filename = self.services['IPython'].wait_and_get_ipykernel_filename()
-        #self.ipython_step_library = hitchpython.IPythonStepLibrary()
-        #self.ipython_step_library.startup_connection(self.ipython_kernel_filename)
-
-        #self.run_command = self.ipython_step_library.run
-        #self.assert_true = self.ipython_step_library.assert_true
-        #self.assert_exception = self.ipython_step_library.assert_exception
-        #self.shutdown_connection = self.ipython_step_library.shutdown_connection
-
-        #self.run_command("import os")
-        #self.run_command("""os.chdir("{}")""".format(self.path.state))
 
         if not self.path.state.exists():
             self.path.state.mkdir()
-
-        #self.run_command("import hitchtest")
-        #self.run_command("import hitchhttp")
-        #self.run_command("from path import Path")
 
     def lint(self, args=None):
         """Lint the source code."""
@@ -110,15 +93,15 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
     def on_failure(self):
         """Stop and IPython."""
-        #if self.settings.get("kaching", False):
-            #kaching.fail()
+        if self.settings.get("kaching", False):
+            kaching.fail()
         if self.settings.get("pause_on_failure", False):
             self.pause(message=self.stacktrace.to_template())
 
     def on_success(self):
         """Ka-ching!"""
-        #if self.settings.get("kaching", False):
-            #kaching.win()
+        if self.settings.get("kaching", False):
+            kaching.win()
         if self.settings.get("pause_on_success", False):
             self.pause(message="SUCCESS")
 
