@@ -1,11 +1,12 @@
 - name : Lint
   preconditions:
     python_version: 3.5.0
+    runservices: no
   scenario:
     - lint:
         args:
-          - hitch
-          - --exclude=click,__init__.py
+          - hitchhttp
+          - --exclude=__init__.py
           - --max-line-length=100
     - lint:
         args:
