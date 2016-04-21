@@ -14,7 +14,7 @@ class MockRestConfig(object):
         else:
             try:
                 with open(filename, 'r') as config_yaml_handle:
-                    self._config = yaml.safe_load(config_yaml_handle.read())
+                    self._config = yaml.load(config_yaml_handle.read())
             except Exception as e:
                 sys.stderr.write("Error reading yaml config file: {0}\n".format(str(e)))
                 sys.exit(1)

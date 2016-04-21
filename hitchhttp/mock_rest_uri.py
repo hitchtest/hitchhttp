@@ -4,13 +4,22 @@ from urllib import parse as urlparse
 import urllib
 from hitchhttp import status_codes
 
+def convert_querystring(qs):
+    """Allow for non-lists to be sent to querystring."""
+    converted_qs = {}
+    for key, value in qs.items():
+        if type(value) is not list:
+            converted_qs[key] = [value, ]
+        else:
+            converted_qs[key] = value
+    return converted_qs
+
 
 class MockRestURI(object):
     """Representation of a mock URI."""
     def __init__(self, uri_dict):
         self.name = uri_dict.get('name', None)
         self.fullpath = uri_dict['request']['path']
-        #self._regexp = uri_dict['request']['path']
         self._regexp = False
 
         self.path = urlparse.urlparse(self.fullpath).path
@@ -24,7 +33,7 @@ class MockRestURI(object):
         self.response_content = uri_dict['response'].get('content', "")
         self.wait = float(uri_dict['response'].get('wait', 0.0))
         self.request_data = uri_dict['request'].get('data', None)
-        self.querystring = uri_dict['request'].get("querystring", {})
+        self.querystring = convert_querystring(uri_dict['request'].get("querystring", {}))
         self.encoding = uri_dict['request'].get("encoding", None)
 
     def match(self, request):

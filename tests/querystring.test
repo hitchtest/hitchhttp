@@ -32,11 +32,33 @@
                 - nw12sd
           response:
             content: <html><body>correct3</body></html>
+        - request:
+            path: /hello4
+            querystring:
+              x:
+                - a b
+              y:
+                - a b
+          response:
+            content: <html><body>correct4</body></html>
+        - request:
+            path: /hello5
+            querystring:
+              x: q
+              y: z
+          response:
+            content: <html><body>correct5</body></html>
   scenario:
+    - Assert request response contains:
+        url: http://localhost:10088/hello5?x=q&y=z
+        contains: correct5
+        timeout: 1000
+    - Assert request response contains:
+        url: http://localhost:10088/hello4?x=a%20b&y=a+b
+        contains: correct4
     - Assert request response contains:
         url: http://localhost:10088/hello1?variable=value
         contains: correct1
-        timeout: 1000
     - Assert request response contains:
         url: http://localhost:10088/hello2?variable=value1&variable=value2
         contains: correct2
