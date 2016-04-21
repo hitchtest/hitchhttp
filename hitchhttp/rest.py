@@ -18,6 +18,16 @@ class MockRestHandler(BaseHTTPRequestHandler):
         """Logging is done by process method."""
         pass
 
+    def log_json(self, name, request, response):
+        """JSON to log to indicate what just happened."""
+        pair = {}
+        pair['match'] = name
+        pair['request'] = request
+        pair['response'] = response
+
+        sys.stdout.write(u"{0}\n".format(json.dumps(pair)))
+        sys.stdout.flush()
+
     def process(self, method):
         """Determine if a request matches a listed URI in the config, and if so, respond."""
         request = http_request.MockRequest(self.command, self.path, self.headers, self.rfile)
@@ -32,16 +42,16 @@ class MockRestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(uri.response_content.encode('utf8'))
             self.wfile.flush()
-            sys.stdout.write(u"{0}\n".format(json.dumps(request.to_dict(uri.name))))
-            sys.stdout.flush()
+            self.log_json(uri.name, request.to_dict(uri.name), uri.response_content)
         else:
             self.send_response(404)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(self.default_response.format(self.path).encode('utf8'))
             self.wfile.flush()
-            sys.stdout.write(u"{0}\n".format(json.dumps(request.to_dict(None))))
-            sys.stdout.flush()
+            #sys.stdout.write(u"{0}\n".format(json.dumps(request.to_dict(None))))
+            #sys.stdout.flush()
+            self.log_json(None, request.to_dict(None), self.default_response.format(self.path))
 
     def do_GET(self):
         self.process('GET')

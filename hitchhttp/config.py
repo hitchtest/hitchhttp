@@ -1,5 +1,6 @@
 from hitchhttp.mock_rest_uri import MockRestURI
 from os import path
+import jinja2
 import yaml
 import re
 import sys
