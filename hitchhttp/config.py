@@ -1,6 +1,7 @@
 from hitchhttp.mock_rest_uri import MockRestURI
+from jinja2.environment import Environment
+from jinja2 import FileSystemLoader, exceptions
 from os import path
-import jinja2
 import yaml
 import re
 import sys
@@ -14,10 +15,19 @@ class MockRestConfig(object):
             self._config = []
         else:
             try:
-                with open(filename, 'r') as config_yaml_handle:
-                    self._config = yaml.load(config_yaml_handle.read())
+                env = Environment()
+                env.loader = FileSystemLoader(path.split(filename)[0])
+                try:
+                    template = env.get_template(path.split(filename)[1])
+                except exceptions.TemplateError as error:
+                    sys.stderr.write("Jinja2 template error in '{}' on line {}:\n==> {}\n".format(
+                        error.filename, error.lineno, str(error)
+                    ))
+                    sys.exit(1)
+
+                self._config = yaml.load(template.render())
             except Exception as e:
-                sys.stderr.write("Error reading yaml config file: {0}\n".format(str(e)))
+                sys.stderr.write("Error rendering jinja2/reading yaml config file: {0}\n".format(str(e)))
                 sys.exit(1)
 
             # Read and store all references to external content files

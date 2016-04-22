@@ -34,16 +34,12 @@ def serve(config_filename, port):
     MockRestHandlerClass = rest.MockRestHandler
     MockRestHandlerClass.config = config.MockRestConfig(config_filename)
 
-    sys.stdout.write("HitchHttp running on port {} with config {}.\n".format(port, config_filename))
+    sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
 
-    try:
-        server = HTTPServer(('0.0.0.0', port), MockRestHandlerClass)
-        server.serve_forever()
-    except SystemExit:
-        server.socket.close()
-    except KeyboardInterrupt:
-        server.socket.close()
+    #try:
+    server = HTTPServer(('0.0.0.0', port), MockRestHandlerClass)
+    server.serve_forever()
 
 
 #@command()
