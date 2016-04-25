@@ -1,14 +1,10 @@
 """Mock HTTP server for Hitch."""
 from click import command, group, argument, option
-import sys
-import jinja2
-import datetime
 from http.server import HTTPServer
-import signal
-from hitchhttp import rest
 from hitchhttp import config
-
-#app = clip.App()
+from hitchhttp import rest
+import signal
+import sys
 
 
 @group()
@@ -37,7 +33,6 @@ def serve(config_filename, port):
     sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
 
-    #try:
     server = HTTPServer(('0.0.0.0', port), MockRestHandlerClass)
     server.serve_forever()
 
