@@ -11,6 +11,8 @@ import os
 class MockRestConfig(object):
     def __init__(self, filename):
         """Load config from YAML file."""
+        filename = path.abspath(filename)
+
         if filename is None:
             self._config = []
         else:
