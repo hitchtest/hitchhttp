@@ -1,0 +1,22 @@
+- name: Print jinja2 output
+  tags:
+    - request
+  preconditions:
+    serve:
+      - config.http
+    config_files:
+      config.http: |
+        {% raw %}
+        {% for i in range(1, 3) %}
+        - request:
+            path: /hello{{ i }}
+          response:
+            content: <html><body>correct{{ i }}</body></html>
+        {% endfor %}
+        {% endraw %}
+  scenario:
+    - hitchhttp:
+        args:
+          - yaml
+          - config.http
+    - Expect: correct2

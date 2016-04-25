@@ -25,7 +25,8 @@ class MockRestConfig(object):
                     ))
                     sys.exit(1)
 
-                self._config = yaml.load(template.render())
+                self._yaml = template.render()
+                self._config = yaml.load(self._yaml)
             except Exception as e:
                 sys.stderr.write("Error reading YAML config file: {0}\n".format(str(e)))
                 sys.exit(1)
@@ -61,3 +62,6 @@ class MockRestConfig(object):
             #for uri_dict in group_dict.get('uris', []):
                 #uri_list.append(MockRestURI(uri_dict))
         return uri_list
+
+    def to_yaml(self):
+        return self._yaml

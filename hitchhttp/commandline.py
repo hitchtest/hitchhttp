@@ -36,6 +36,12 @@ def serve(config_filename, port):
     server = HTTPServer(('0.0.0.0', port), MockRestHandlerClass)
     server.serve_forever()
 
+@command()
+@argument('config_filename', required=True)
+def yaml(config_filename):
+    """Output YAML generated from config file (use for testing jinja2)."""
+    sys.stdout.write(config.MockRestConfig(config_filename).to_yaml())
+    sys.stdout.flush()
 
 #@command()
 #@argument('config_filename', required=True, help='Mock HTTP YAML configuration file.')
@@ -63,6 +69,7 @@ def main():
     #serve.name = "Serve a mock http server."
     #serve.short_help = "serve"
     cli.add_command(serve)
+    cli.add_command(yaml)
     cli()
 
 if __name__ == '__main__':
