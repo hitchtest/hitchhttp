@@ -2,7 +2,8 @@
   tags:
     - request
   preconditions:
-    config_name: "config.http"
+    serve:
+      - config.http
     config_files:
       config.http: |
         {% raw %}

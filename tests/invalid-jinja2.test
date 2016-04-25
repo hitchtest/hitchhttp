@@ -1,0 +1,21 @@
+- name: Invalid yaml
+  tags:
+    - request
+    - cli
+    - sad
+  preconditions:
+    config_files:
+      config.http: |
+        {% raw %}
+        {% for i in range(1, 2) %}
+        - request:
+            path: /hello
+          response:
+            content: <html><body>correct</body></html>
+        {% endraw %}
+  scenario:
+    - hitchhttp:
+        args:
+          - serve
+          - config.http
+    - Expect: Jinja2 template error

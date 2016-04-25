@@ -1,0 +1,19 @@
+- name: Invalid yaml
+  tags:
+    - request
+    - cli
+    - sad
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            path: /hello
+            querystring: xxx
+          response:
+            content: <html><body>correct</body></html>
+  scenario:
+    - hitchhttp:
+        args:
+          - serve
+          - config.http
+    - Expect: Invalid YAML

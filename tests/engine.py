@@ -29,6 +29,20 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         self.python = self.python_package.cmd.python
         self.pip = self.python_package.cmd.pip
 
+        self.cli_steps = hitchcli.CommandLineStepLibrary(
+            default_timeout=int(self.settings.get("cli_timeout", 5))
+        )
+
+        self.cd = self.cli_steps.cd
+        self.run = self.cli_steps.run
+        self.expect = self.cli_steps.expect
+        self.send_control = self.cli_steps.send_control
+        self.send_line = self.cli_steps.send_line
+        self.exit_with_any_code = self.cli_steps.exit_with_any_code
+        self.exit = self.cli_steps.exit
+        self.finish = self.cli_steps.finish
+
+
         if "state" in self.preconditions:
             self.path.state.rmtree(ignore_errors=True)
             self.path.samples.joinpath(self.preconditions['state'])\
@@ -52,12 +66,12 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             shutdown_timeout=1.0
         )
 
-        if self.preconditions.get("runservices", True):
+        self.hitchhttpcmd = self.python("-u", "-m", "hitchhttp.commandline")
+
+        if "serve" in self.preconditions:
+            serve = self.hitchhttpcmd("serve")
             self.services['MockHttp'] = hitchserve.Service(
-                command=self.python(
-                    "-u", "-m", "hitchhttp.commandline", "serve",
-                    str(self.path.state.joinpath(self.preconditions.get("config_name", "")))
-                ),
+                command=serve(*self.preconditions.get("serve", [])).in_dir(self.path.state),
                 log_line_ready_checker=lambda line: "HitchHttp running" in line,
                 directory=str(self.path.state),
             )
@@ -83,6 +97,13 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             assert contains in response
         except AssertionError:
             raise AssertionError("{0} not found in {1}".format(contains, response))
+
+    def hitchhttp(self, args=None):
+        """Run hitch in the state directory."""
+        self.cd(self.path.state)
+        if args is None:
+            args = []
+        self.run(self.hitchhttpcmd.arguments[0], self.hitchhttpcmd.arguments[1:] + args)
 
     def pause(self, message=""):
         if hasattr(self, 'services'):
