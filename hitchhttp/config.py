@@ -27,7 +27,7 @@ class MockRestConfig(object):
 
                 self._config = yaml.load(template.render())
             except Exception as e:
-                sys.stderr.write("Error rendering jinja2/reading yaml config file: {0}\n".format(str(e)))
+                sys.stderr.write("Error reading YAML config file: {0}\n".format(str(e)))
                 sys.exit(1)
 
             # Read and store all references to external content files
