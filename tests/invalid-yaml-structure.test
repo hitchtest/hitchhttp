@@ -1,5 +1,6 @@
 - name: Invalid yaml
   tags:
+    - skip
     - request
     - cli
     - sad
@@ -16,4 +17,4 @@
         args:
           - serve
           - config.http
-    - Expect: Invalid YAML
+    - Expect: YAML validation error
