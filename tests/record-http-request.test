@@ -1,0 +1,36 @@
+- name: Record and playback HTTP request
+  tags:
+    - record
+    - playback
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            method: get
+            path: /hello
+          response:
+            content: <html><body>hello1</body></html>
+  scenario:
+    - Start services:
+        MockHttp:
+          - serve
+          - config.http
+          - --port
+          - '9999'
+        Recorder:
+          - record
+          - http://localhost:9999
+          - recordedconfig.http
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        contains: hello1
+    - Stop services
+    - Start services:
+        MockHttp:
+          - serve
+          - recordedconfig.http
+          - --port
+          - '10088'
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        contains: hello1

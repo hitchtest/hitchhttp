@@ -2,8 +2,6 @@
   tags:
     - request
   preconditions:
-    serve:
-      - config.http
     config_files:
       config.http: |
         {% raw %}
@@ -22,6 +20,10 @@
         {% endmacro %}
         {% endraw %}
   scenario:
+    - Start services:
+        MockHttp:
+          - serve
+          - config.http
     - Assert request response contains:
         url: http://localhost:10088/hello1
         contains: correct1

@@ -5,6 +5,7 @@ import hitchtest
 import hitchcli
 import requests
 import kaching
+import time
 
 
 class ExecutionEngine(hitchtest.ExecutionEngine):
@@ -15,8 +16,9 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         self.path.state = self.path.engine.parent.joinpath("state")
         self.path.samples = self.path.engine.joinpath("samples")
 
-        if not self.path.state.exists():
-            self.path.state.mkdir()
+        if self.path.state.exists():
+            self.path.state.rmtree()
+        self.path.state.mkdir()
 
         if self.settings.get("kaching", False):
             kaching.start()
@@ -28,6 +30,7 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
         self.python = self.python_package.cmd.python
         self.pip = self.python_package.cmd.pip
+        self.hitchhttpcmd = self.python("-u", "-m", "hitchhttp.commandline")
 
         self.cli_steps = hitchcli.CommandLineStepLibrary(
             default_timeout=int(self.settings.get("cli_timeout", 5))
@@ -42,11 +45,10 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         self.exit = self.cli_steps.exit
         self.finish = self.cli_steps.finish
 
-
-        if "state" in self.preconditions:
-            self.path.state.rmtree(ignore_errors=True)
-            self.path.samples.joinpath(self.preconditions['state'])\
-                             .copytree(self.path.state)
+        #if "state" in self.preconditions:
+            #self.path.state.rmtree(ignore_errors=True)
+            #self.path.samples.joinpath(self.preconditions['state'])\
+                             #.copytree(self.path.state)
 
         run(self.pip("uninstall", "hitchhttp", "-y").ignore_errors())
         run(self.pip("uninstall", "hitchtest", "-y").ignore_errors())
@@ -60,33 +62,31 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         for config_filename, config_filecontents in self.preconditions.get("config_files", {}).items():
             self.path.state.joinpath(config_filename).write_text(config_filecontents)
 
+
+    def start_services(self, **services):
+        """Start specified MockHTTP services."""
         self.services = hitchserve.ServiceBundle(
             self.path.project,
             startup_timeout=8.0,
             shutdown_timeout=1.0
         )
 
-        self.hitchhttpcmd = self.python("-u", "-m", "hitchhttp.commandline")
-
-        if "serve" in self.preconditions:
-            serve = self.hitchhttpcmd("serve")
-            self.services['MockHttp'] = hitchserve.Service(
-                command=serve(*self.preconditions.get("serve", [])).in_dir(self.path.state),
+        for name, args in services.items():
+            self.services[name] = hitchserve.Service(
+                command=self.hitchhttpcmd(*args).in_dir(self.path.state),
                 log_line_ready_checker=lambda line: "HitchHttp running" in line,
                 directory=str(self.path.state),
             )
 
         self.services.startup(interactive=False)
 
-        if not self.path.state.exists():
-            self.path.state.mkdir()
 
     def lint(self, args=None):
         """Lint the source code."""
         run(self.pip("install", "flake8"))
         run(self.python_package.cmd.flake8(*args).in_dir(self.path.project))
 
-    def assert_request_response_contains(self, url, contains, method="get", data=None, headers=None, timeout=30):
+    def assert_request_response_contains(self, url, contains, method="get", data=None, headers=None, timeout=3):
         response = getattr(requests, method)(
             url,
             data=data,
@@ -105,11 +105,15 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             args = []
         self.run(self.hitchhttpcmd.arguments[0], self.hitchhttpcmd.arguments[1:] + args)
 
+    def sleep(self, duration):
+        """Sleep for specified duration."""
+        time.sleep(int(duration))
+
     def pause(self, message=""):
-        if hasattr(self, 'services'):
+        if hasattr(self, 'services') and self.services is not None:
             self.services.start_interactive_mode()
         self.ipython(message=message)
-        if hasattr(self, 'services'):
+        if hasattr(self, 'services') and self.services is not None:
             self.services.stop_interactive_mode()
 
     def on_failure(self):
@@ -126,9 +130,11 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         if self.settings.get("pause_on_success", False):
             self.pause(message="SUCCESS")
 
+    def stop_services(self):
+        if hasattr(self, 'services'):
+            if self.services is not None:
+                self.services.shutdown()
+
     def tear_down(self):
         """Clean out the state directory."""
-        if hasattr(self, 'services'):
-            self.services.shutdown()
-        if self.settings.get("leavestate", True):
-            self.path.state.rmtree(ignore_errors=True)
+        self.stop_services()

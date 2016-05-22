@@ -2,8 +2,6 @@
   tags:
     - request
   preconditions:
-    serve:
-      - config.http
     config_files:
       config.http: |
         - request:
@@ -11,6 +9,10 @@
           response:
             content: <html><body>hello</body></html>
   scenario:
+    - Start services:
+        MockHttp:
+          - serve
+          - config.http
     - Assert request response contains:
         url: http://localhost:10088/hello
         contains: hello
