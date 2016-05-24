@@ -8,6 +8,9 @@
         - request:
             method: get
             path: /hello
+            querystring:
+              a: x
+              b: y
           response:
             content: <html><body>hello1</body></html>
   scenario:
@@ -22,7 +25,7 @@
           - http://localhost:9999
           - recordedconfig.http
     - Assert request response contains:
-        url: http://localhost:10088/hello
+        url: "http://localhost:10088/hello?b=y&a=x"
         contains: hello1
     - Stop services
     - Start services:
@@ -32,5 +35,5 @@
           - --port
           - '10088'
     - Assert request response contains:
-        url: http://localhost:10088/hello
+        url: http://localhost:10088/hello?a=x&b=y
         contains: hello1

@@ -54,13 +54,16 @@ class MockRestHandler(BaseHTTPRequestHandler):
 
             yaml_snip = {}
             yaml_snip['request'] = {
-                "path": self.path,
+                "path": request.basepath(),
                 "method": method,
                 "headers": request.headers,
             }
 
             if request.request_data is not None:
                 yaml_snip['request']['data'] = request.request_data
+
+            if request.querystring != {}:
+                yaml_snip['request']['querystring'] = request.querystring()
 
             yaml_snip['response'] = {
                 "content": response.content.decode('utf8'),
