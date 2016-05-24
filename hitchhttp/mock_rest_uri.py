@@ -2,6 +2,7 @@ import re
 import xeger
 from urllib import parse as urlparse
 import urllib
+import json
 from hitchhttp import status_codes
 
 def convert_querystring(qs):
@@ -28,6 +29,7 @@ class MockRestURI(object):
         self.method = uri_dict['request'].get('method', None)
         self.headers = uri_dict['request'].get('headers', None)
         self.return_code = int(uri_dict['response'].get('code', '200'))
+        self.request_content_type = uri_dict['request'].get('content-type', 'text/plain')
         self.response_content_type = uri_dict['response'].get('content-type', 'text/plain')
         self.response_location = uri_dict['response'].get('location', None)
         self.response_content = uri_dict['response'].get('content', "")
@@ -68,8 +70,12 @@ class MockRestURI(object):
 
         # Match processed request data
         if self.request_data is not None:
-            if request.request_data != self.request_data:
-                return False
+            if self.request_content_type == "application/json":
+                if request.request_data != json.loads(self.request_data.strip()):
+                    return False
+            else:
+                if request.request_data != self.request_data:
+                    return False
 
         # Match encoding
         if self.encoding is not None:

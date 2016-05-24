@@ -19,11 +19,14 @@ class MockRequest(object):
             self.length = int(headers.get('content-length', "0"))
 
             if self.ctype == 'application/x-www-form-urlencoded':
-                self.request_data = cgi.parse_qs(rfile.read(self.length), keep_blank_values=1)
+                self.request_data = {
+                    key.decode('utf8'): [value.decode('utf8') for value in values] for key, values in
+                        cgi.parse_qs(rfile.read(self.length), keep_blank_values=1).items()
+                }
             elif self.ctype == 'multipart/form-data':
                 self.request_data = cgi.parse_multipart(rfile, pdict)
             elif self.ctype == 'application/json':
-                contents_of_request = rfile.read(self.length).decode('utf-8')
+                contents_of_request = rfile.read(self.length).decode('utf-8').strip()
                 try:
                     self.request_data = json.loads(contents_of_request)
                 except ValueError:

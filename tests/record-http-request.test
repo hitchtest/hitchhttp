@@ -6,11 +6,12 @@
     config_files:
       config.http: |
         - request:
-            method: get
+            method: post
             path: /hello
-            querystring:
-              a: x
-              b: y
+            headers:
+              Content-Type: application/json
+            data: |
+              {"a": "x", "b": "y"}
           response:
             content: <html><body>hello1</body></html>
   scenario:
@@ -25,8 +26,13 @@
           - http://localhost:9999
           - recordedconfig.http
     - Assert request response contains:
-        url: "http://localhost:10088/hello?b=y&a=x"
+        method: post
+        url: "http://localhost:10088/hello"
+        data: |
+          {"a": "x", "b": "y"}
         contains: hello1
+        headers:
+          Content-Type: application/json
     - Stop services
     - Start services:
         MockHttp:
@@ -35,5 +41,10 @@
           - --port
           - '10088'
     - Assert request response contains:
-        url: http://localhost:10088/hello?a=x&b=y
+        method: post
+        url: http://localhost:10088/hello
+        data: |
+          {"b": "y", "a": "x"}
         contains: hello1
+        headers:
+          Content-Type: application/json

@@ -39,7 +39,7 @@ class MockRestHandler(BaseHTTPRequestHandler):
                 method,
                 "{}{}".format(self.redirection_url, self.path),
                 headers=request.headers_without_host,
-                data=request.request_data
+                data=str(request.request_data)
             )
 
 
@@ -60,7 +60,10 @@ class MockRestHandler(BaseHTTPRequestHandler):
             }
 
             if request.request_data is not None:
-                yaml_snip['request']['data'] = request.request_data
+                if request.headers.get("Content-Type") == "application/json":
+                    yaml_snip['request']['data'] = str(json.dumps(request.request_data))
+                else:
+                    yaml_snip['request']['data'] = str(request.request_data)
 
             if request.querystring != {}:
                 yaml_snip['request']['querystring'] = request.querystring()
@@ -79,11 +82,10 @@ class MockRestHandler(BaseHTTPRequestHandler):
             if uri is not None:
                 time.sleep(uri.wait)
                 self.send_response(uri.return_code)
-                #self.send_header('Content-type', uri.response_content_type)
-                #if uri.response_location is not None:
-                    #self.send_header('Location', uri.response_location)
                 for header_var, header_val in uri.response_headers.items():
                     if header_var.lower() not in ["transfer-encoding", "content-encoding", ]:
+                        print(header_var)
+                        print(header_val)
                         self.send_header(header_var, header_val)
                 self.end_headers()
                 self.wfile.write(uri.response_content.encode('utf8'))
