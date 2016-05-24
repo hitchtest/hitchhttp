@@ -1,11 +1,13 @@
+from http.server import BaseHTTPRequestHandler
+from urllib import parse as urlparse
+from hitchhttp import http_request
+import requests
+import yaml
+import json
+import time
 import sys
 import cgi
-import time
-from urllib import parse as urlparse
 import re
-import json
-from http.server import BaseHTTPRequestHandler
-from hitchhttp import http_request
 
 
 class MockRestHandler(BaseHTTPRequestHandler):
@@ -31,38 +33,41 @@ class MockRestHandler(BaseHTTPRequestHandler):
     def process(self, method):
         """Determine if a request matches a listed URI in the config, and if so, respond."""
         request = http_request.MockRequest(self.command, self.path, self.headers, self.rfile)
-        
+
         if self.record:
-            import requests
-            import yaml
-            
             response = requests.request(
                 method,
                 "{}{}".format(self.redirection_url, self.path),
-                headers=request.headers,
+                headers=request.headers_without_host,
                 data=request.request_data
             )
-            
+
+
             self.send_response(response.status_code)
-            
             for header_var, header_val in response.headers.items():
-                self.send_header(header_var, header_val)
+                if header_var.lower() not in ["transfer-encoding", "content-encoding", ]:
+                    self.send_header(header_var, header_val)
             self.end_headers()
             self.wfile.write(response.content)
             self.wfile.flush()
             self.log_json(self.path, {"method": method}, response.content.decode('utf8'))
-            
+
             yaml_snip = {}
             yaml_snip['request'] = {
                 "path": self.path,
                 "method": method,
                 "headers": request.headers,
-                "data": request.request_data,
             }
+
+            if request.request_data is not None:
+                yaml_snip['request']['data'] = request.request_data
+
             yaml_snip['response'] = {
-                "content": response.content.decode('utf8')
+                "content": response.content.decode('utf8'),
+                "code": response.status_code,
+                "headers": dict(response.headers),
             }
-            
+
             with open(self.record_to_filename, 'a') as handle:
                 handle.write("\n{}".format(yaml.dump([yaml_snip], default_flow_style=False)))
         else:
@@ -71,9 +76,12 @@ class MockRestHandler(BaseHTTPRequestHandler):
             if uri is not None:
                 time.sleep(uri.wait)
                 self.send_response(uri.return_code)
-                self.send_header('Content-type', uri.response_content_type)
-                if uri.response_location is not None:
-                    self.send_header('Location', uri.response_location)
+                #self.send_header('Content-type', uri.response_content_type)
+                #if uri.response_location is not None:
+                    #self.send_header('Location', uri.response_location)
+                for header_var, header_val in uri.response_headers.items():
+                    if header_var.lower() not in ["transfer-encoding", "content-encoding", ]:
+                        self.send_header(header_var, header_val)
                 self.end_headers()
                 self.wfile.write(uri.response_content.encode('utf8'))
                 self.wfile.flush()

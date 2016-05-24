@@ -35,6 +35,7 @@ class MockRestURI(object):
         self.request_data = uri_dict['request'].get('data', None)
         self.querystring = convert_querystring(uri_dict['request'].get("querystring", {}))
         self.encoding = uri_dict['request'].get("encoding", None)
+        self.response_headers = uri_dict['response'].get("headers", {})
 
     def match(self, request):
         """Does this URI match the request?"""

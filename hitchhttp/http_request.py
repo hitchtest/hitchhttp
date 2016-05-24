@@ -9,7 +9,7 @@ class MockRequest(object):
     def __init__(self, command, path, headers, rfile):
         self.command = command
         self.path = path
-        self.headers = dict(headers._headers)
+        self._headers = dict(headers._headers)
         self.ctype = None
         self.length = 0
         self.request_data = None
@@ -37,12 +37,23 @@ class MockRequest(object):
     def basepath(self):
         return urlparse.urlparse(self.path).path
 
+    @property
+    def headers_without_host(self):
+        headers = dict(self._headers)
+        if "Host" in headers:
+            del headers['Host']
+        return headers
+
+    @property
+    def headers(self):
+        return self._headers
+
     def to_dict(self, name):
         return {
             'match': name,
             'command': self.command,
             'path': self.path,
-            'headers': self.headers,
+            'headers': self._headers,
             'querystring': self.querystring(),
             'length': self.length,
             'request_data': self.request_data,

@@ -109,6 +109,10 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         """Sleep for specified duration."""
         time.sleep(int(duration))
 
+    def placeholder(self):
+        """Placeholder to add a new test."""
+        pass
+
     def pause(self, message=""):
         if hasattr(self, 'services') and self.services is not None:
             self.services.start_interactive_mode()

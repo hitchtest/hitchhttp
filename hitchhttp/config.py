@@ -36,7 +36,7 @@ class MockRestConfig(object):
             # Read and store all references to external content files
             for pair in self._config:
                 content = pair.get('response', {}).get('content')
-                if "file" in content:
+                if type(content) != str and "file" in content:
                     with open(path.join(path.dirname(filename), content['file']), 'r') as content_file_handle:
                         pair['response']['content'] = content_file_handle.read()
 
@@ -61,8 +61,6 @@ class MockRestConfig(object):
         uri_list = []
         for pair in self._config:
             uri_list.append(MockRestURI(pair))
-            #for uri_dict in group_dict.get('uris', []):
-                #uri_list.append(MockRestURI(uri_dict))
         return uri_list
 
     def to_yaml(self):
