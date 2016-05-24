@@ -35,11 +35,19 @@ class MockRestHandler(BaseHTTPRequestHandler):
         request = http_request.MockRequest(self.command, self.path, self.headers, self.rfile)
 
         if self.record:
+            if request.request_data is not None:
+                if request.headers.get("Content-Type") == "application/json":
+                    data = json.dumps(request.request_data)
+                else:
+                    data = request.request_data
+            else:
+                data = None
+
             response = requests.request(
                 method,
                 "{}{}".format(self.redirection_url, self.path),
                 headers=request.headers_without_host,
-                data=str(request.request_data)
+                data=data
             )
 
 

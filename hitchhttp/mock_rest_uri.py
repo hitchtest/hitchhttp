@@ -19,6 +19,7 @@ def convert_querystring(qs):
 class MockRestURI(object):
     """Representation of a mock URI."""
     def __init__(self, uri_dict):
+        self._uri_dict = uri_dict
         self.name = uri_dict.get('name', None)
         self.fullpath = uri_dict['request']['path']
         self._regexp = False
@@ -29,8 +30,8 @@ class MockRestURI(object):
         self.method = uri_dict['request'].get('method', None)
         self.headers = uri_dict['request'].get('headers', None)
         self.return_code = int(uri_dict['response'].get('code', '200'))
-        self.request_content_type = uri_dict['request'].get('content-type', 'text/plain')
-        self.response_content_type = uri_dict['response'].get('content-type', 'text/plain')
+        self.request_content_type = uri_dict['request'].get("headers", {}).get('Content-Type')
+        self.response_content_type = uri_dict['response'].get("headers", {}).get('Content-Type', 'text/plain')
         self.response_location = uri_dict['response'].get('location', None)
         self.response_content = uri_dict['response'].get('content', "")
         self.wait = float(uri_dict['response'].get('wait', 0.0))
@@ -71,7 +72,7 @@ class MockRestURI(object):
         # Match processed request data
         if self.request_data is not None:
             if self.request_content_type == "application/json":
-                if request.request_data != json.loads(self.request_data.strip()):
+                if request.request_data != json.loads(self.request_data):
                     return False
             else:
                 if request.request_data != self.request_data:
