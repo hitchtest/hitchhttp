@@ -58,7 +58,7 @@ class MockRestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(response.content)
             self.wfile.flush()
-            self.log_json(self.path, {"method": method}, response.content.decode('utf8'))
+            self.log_json(self.path, {"method": method}, "")
 
             yaml_snip = {}
             yaml_snip['request'] = {
@@ -92,8 +92,6 @@ class MockRestHandler(BaseHTTPRequestHandler):
                 self.send_response(uri.return_code)
                 for header_var, header_val in uri.response_headers.items():
                     if header_var.lower() not in ["transfer-encoding", "content-encoding", ]:
-                        print(header_var)
-                        print(header_val)
                         self.send_header(header_var, header_val)
                 self.end_headers()
                 self.wfile.write(uri.response_content.encode('utf8'))
