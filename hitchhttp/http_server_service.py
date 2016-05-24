@@ -19,4 +19,4 @@ class RecordingHttpServer(Service):
             "--port", str(port), str(domain), str(path)
         ]
         kwargs['log_line_ready_checker'] = lambda line: "HitchHttp running" in line
-        super(HttpServer, self).__init__(**kwargs)
+        super(RecordingHttpServer, self).__init__(**kwargs)
