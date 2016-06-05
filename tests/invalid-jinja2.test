@@ -1,8 +1,8 @@
-- name: Invalid yaml
+- name: Invalid jinja2
   tags:
     - request
     - cli
-    - sad
+    - skip
   preconditions:
     config_files:
       config.http: |
@@ -18,4 +18,4 @@
         args:
           - serve
           - config.http
-    - Expect: Jinja2 template error
+    - Expect: Jinja2 error

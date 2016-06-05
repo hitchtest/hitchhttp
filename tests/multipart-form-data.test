@@ -1,0 +1,38 @@
+- name : Multipart form data
+  description: |
+    Multipart form data is often sent via forms. It includes a boundary separator in the content type
+    heading which ought to match the boundary in the data, although the exact boundary value should not
+    matter when matching requests.
+    
+    TODO: Allow partial Content-Type matching.
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            path: /hello
+            method: post
+            data: "-----------------------------633047248516377359968977499\r\nContent-Disposition:\
+                \ form-data; name=\"x\"\r\n\r\naaa\r\n-----------------------------633047248516377359968977499\r\
+                \nContent-Disposition: form-data; name=\"y\"\r\n\r\naaabb\r\n-----------------------------633047248516377359968977499\r\
+                \nContent-Disposition: form-data; name=\"y\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\
+                \n\r\n\r\n-----------------------------633047248516377359968977499--\r\n"
+            headers:
+              Content-Type: multipart/form-data; boundary=---------------------------633047248516377359968977499
+          response:
+            content: <html><body>correct</body></html>
+  scenario:
+    - Start services:
+        MockHttp:
+          - serve
+          - config.http
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        method: post
+        data: "-----------------------------633047248516377359968977499\r\nContent-Disposition:\
+             \ form-data; name=\"x\"\r\n\r\naaa\r\n-----------------------------633047248516377359968977499\r\
+             \nContent-Disposition: form-data; name=\"y\"\r\n\r\naaabb\r\n-----------------------------633047248516377359968977499\r\
+             \nContent-Disposition: form-data; name=\"y\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\
+             \n\r\n\r\n-----------------------------633047248516377359968977499--\r\n"
+        headers:
+          Content-Type: 'multipart/form-data; boundary=---------------------------633047248516377359968977499'
+        contains: correct

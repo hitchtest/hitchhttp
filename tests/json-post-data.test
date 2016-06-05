@@ -6,10 +6,10 @@
       config.http: |
         - request:
             path: /hello
-            encoding: application/json
             method: post
-            data:
-              var1: value1
+            data: '{"var1": "value1"}'
+            headers:
+              Content-Type: application/json
           response:
             content: <html><body>correct</body></html>
   scenario:

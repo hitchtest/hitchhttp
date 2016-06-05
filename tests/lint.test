@@ -11,3 +11,4 @@
     - lint:
         args:
           - tests/engine.py
+          - --max-line-length=100

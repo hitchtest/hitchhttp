@@ -45,23 +45,19 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         self.exit = self.cli_steps.exit
         self.finish = self.cli_steps.finish
 
-        #if "state" in self.preconditions:
-            #self.path.state.rmtree(ignore_errors=True)
-            #self.path.samples.joinpath(self.preconditions['state'])\
-                             #.copytree(self.path.state)
-
         run(self.pip("uninstall", "hitchhttp", "-y").ignore_errors())
         run(self.pip("uninstall", "hitchtest", "-y").ignore_errors())
-        run(self.pip("install", ".").in_dir(self.path.project.joinpath("..", "test")))
+        run(self.pip("install", ".").in_dir(
+            self.path.project.joinpath("..", "test")    # Install hitchtest
+        ))
         run(self.pip("install", ".").in_dir(self.path.project))
         run(self.pip("install", "ipykernel"))
         run(self.pip("install", "pip"))
         run(self.pip("install", "q"))
         run(self.pip("install", "pudb"))
 
-        for config_filename, config_filecontents in self.preconditions.get("config_files", {}).items():
-            self.path.state.joinpath(config_filename).write_text(config_filecontents)
-
+        for filename, contents in self.preconditions.get("config_files", {}).items():
+            self.path.state.joinpath(filename).write_text(contents)
 
     def start_services(self, **services):
         """Start specified MockHTTP services."""
@@ -80,13 +76,14 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
         self.services.startup(interactive=False)
 
-
     def lint(self, args=None):
         """Lint the source code."""
         run(self.pip("install", "flake8"))
         run(self.python_package.cmd.flake8(*args).in_dir(self.path.project))
 
-    def assert_request_response_contains(self, url, contains, method="get", data=None, headers=None, timeout=3):
+    def assert_request_response_contains(
+        self, url="", contains="", method="get", data=None, headers=None, timeout=3
+    ):
         response = getattr(requests, method)(
             url,
             data=data,

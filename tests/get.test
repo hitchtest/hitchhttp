@@ -7,7 +7,7 @@
         - request:
             path: /hello
           response:
-            content: <html><body>hello</body></html>
+            content: <html><body>hello1</body></html>
   scenario:
     - Start services:
         MockHttp:
@@ -15,4 +15,4 @@
           - config.http
     - Assert request response contains:
         url: http://localhost:10088/hello
-        contains: hello
+        contains: hello1

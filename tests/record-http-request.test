@@ -10,8 +10,7 @@
             path: /hello
             headers:
               Content-Type: application/json
-            data: |
-              {"a": "x", "b": "y"}
+            data: '{"a": "x", "b": "y"}'
           response:
             content: <html><body>hello1</body></html>
   scenario:
@@ -28,8 +27,7 @@
     - Assert request response contains:
         method: post
         url: "http://localhost:10088/hello"
-        data: |
-          {"a": "x", "b": "y"}
+        data: '{"b": "y", "a": "x"}'
         contains: hello1
         headers:
           Content-Type: application/json
@@ -42,9 +40,8 @@
           - '10088'
     - Assert request response contains:
         method: post
-        url: http://localhost:10088/hello
-        data: |
-          {"b": "y", "a": "x"}
+        url: "http://localhost:10088/hello"
+        data: '{"b": "y", "a": "x"}'
         contains: hello1
         headers:
           Content-Type: application/json

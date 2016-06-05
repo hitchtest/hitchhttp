@@ -1,9 +1,10 @@
-import re
-import xeger
 from urllib import parse as urlparse
-import urllib
-import json
 from hitchhttp import status_codes
+import xeger
+import json
+import cgi
+import io
+
 
 def convert_querystring(qs):
     """Allow for non-lists to be sent to querystring."""
@@ -31,7 +32,8 @@ class MockRestURI(object):
         self.headers = uri_dict['request'].get('headers', None)
         self.return_code = int(uri_dict['response'].get('code', '200'))
         self.request_content_type = uri_dict['request'].get("headers", {}).get('Content-Type')
-        self.response_content_type = uri_dict['response'].get("headers", {}).get('Content-Type', 'text/plain')
+        self.response_content_type = uri_dict['response'].get("headers", {})\
+                                                         .get('Content-Type', 'text/plain')
         self.response_location = uri_dict['response'].get('location', None)
         self.response_content = uri_dict['response'].get('content', "")
         self.wait = float(uri_dict['response'].get('wait', 0.0))
@@ -51,37 +53,47 @@ class MockRestURI(object):
         if self.path != urlparse.urlparse(request.path).path:
             return False
 
+        # Match querystring
+        if request.querystring() != self.querystring:
+            return False
+
         # Match headers
         if self.headers is not None:
             for header_var, header_value in self.headers.items():
                 if header_var not in request.headers:
                     return False
-                if request.headers[header_var] != header_value:
-                    return False
+                else:
+                    req_maintext, req_pdict = cgi.parse_header(request.headers.get(header_var))
+                    mock_maintext, mock_pdict = cgi.parse_header(header_value)
 
-        #if not self._regexp and self.path != request.basepath():
-            #return False
+                    if "boundary" in req_pdict and "boundary" in mock_pdict:
+                        req_pdict['boundary'] = "xxx"
+                        mock_pdict['boundary'] = "xxx"
 
-        #if self._regexp and re.compile(self.path).match(request.path) is not None:
-            #return False
-
-        # Match querystring
-        if request.querystring() != self.querystring:
-            return False
+                    if req_maintext != mock_maintext and req_pdict != mock_pdict:
+                        return False
 
         # Match processed request data
         if self.request_data is not None:
-            if self.request_content_type == "application/json":
-                if request.request_data != json.loads(self.request_data):
+            if self.request_content_type.startswith("application/json"):
+                if json.loads(request.body) != json.loads(self.request_data):
                     return False
-            else:
-                if request.request_data != self.request_data:
-                    return False
+            elif self.request_content_type.startswith("multipart/form-data"):
+                ctype, pdict = cgi.parse_header(request.headers.get('Content-Type'))
+                req_multipart = cgi.parse_multipart(
+                    io.BytesIO(request.body.encode('utf8')),
+                    {x: y.encode('utf8') for x, y in pdict.items()}
+                )
 
-        # Match encoding
-        if self.encoding is not None:
-            if request.ctype != self.encoding:
-                return False
+                ctype, pdict = cgi.parse_header(self.headers.get('Content-Type'))
+                mock_multipart = cgi.parse_multipart(
+                    io.BytesIO(self.request_data.encode('utf8')),
+                    {x: y.encode('utf8') for x, y in pdict.items()}
+                )
+                return mock_multipart == req_multipart
+            else:
+                if request.body != self.request_data:
+                    return False
 
         return True
 

@@ -1,11 +1,12 @@
 """Mock HTTP server for Hitch."""
 from click import command, group, argument, option
-from http.server import HTTPServer
 from hitchhttp import config
 from hitchhttp import rest
 from os import path, remove
 import signal
 import sys
+import tornado.ioloop
+import tornado.web
 
 
 @group()
@@ -28,15 +29,14 @@ def serve(config_filename, port):
         sys.stderr.write("WARNING: Using a port below 1024 to run Internet services"
                          " on is normally prohibited for non-root users and usually inadvisable.\n")
 
-    MockRestHandlerClass = rest.MockRestHandler
-    MockRestHandlerClass.record = False
-    MockRestHandlerClass.config = config.MockRestConfig(config_filename)
-
+    app = tornado.web.Application([(r".*", rest.MainHandler), ])
+    app.settings['record'] = False
+    app.settings['config'] = config.MockRestConfig(config_filename)
+    app.listen(port)
     sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
+    tornado.ioloop.IOLoop.current().start()
 
-    server = HTTPServer(('0.0.0.0', port), MockRestHandlerClass)
-    server.serve_forever()
 
 @command()
 @argument('redirection_url', required=True)
@@ -56,16 +56,14 @@ def record(redirection_url, config_filename, port):
     if path.exists(config_filename):
         remove(config_filename)
 
-    MockRestHandlerClass = rest.MockRestHandler
-    MockRestHandlerClass.record = True
-    MockRestHandlerClass.redirection_url = redirection_url
-    MockRestHandlerClass.record_to_filename = config_filename
-
+    app = tornado.web.Application([(r".*", rest.MainHandler), ])
+    app.settings['record'] = True
+    app.settings['redirection_url'] = redirection_url
+    app.settings['record_to_filename'] = config_filename
+    app.listen(port)
     sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
-
-    server = HTTPServer(('0.0.0.0', port), MockRestHandlerClass)
-    server.serve_forever()
+    tornado.ioloop.IOLoop.current().start()
 
 
 @command()
@@ -77,12 +75,11 @@ def yaml(config_filename):
 
 
 def main():
-    #serve.name = "Serve a mock http server."
-    #serve.short_help = "serve"
     cli.add_command(serve)
     cli.add_command(record)
     cli.add_command(yaml)
     cli()
+
 
 if __name__ == '__main__':
     main()
