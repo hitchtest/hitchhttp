@@ -1,7 +1,7 @@
 """Mock HTTP server for Hitch."""
 from click import command, group, argument, option
+from hitchhttp.main_request_handler import MainHandler
 from hitchhttp import config
-from hitchhttp import rest
 from os import path, remove
 import signal
 import sys
@@ -29,7 +29,7 @@ def serve(config_filename, port):
         sys.stderr.write("WARNING: Using a port below 1024 to run Internet services"
                          " on is normally prohibited for non-root users and usually inadvisable.\n")
 
-    app = tornado.web.Application([(r".*", rest.MainHandler), ])
+    app = tornado.web.Application([(r".*", MainHandler), ])
     app.settings['record'] = False
     app.settings['config'] = config.MockRestConfig(config_filename)
     app.listen(port)
@@ -56,7 +56,7 @@ def record(redirection_url, config_filename, port):
     if path.exists(config_filename):
         remove(config_filename)
 
-    app = tornado.web.Application([(r".*", rest.MainHandler), ])
+    app = tornado.web.Application([(r".*", MainHandler), ])
     app.settings['record'] = True
     app.settings['redirection_url'] = redirection_url
     app.settings['record_to_filename'] = config_filename
