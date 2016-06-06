@@ -1,5 +1,3 @@
 python_versions:
   - 3.5.0
   - 2.7.11
-environment:
-  - internet_detected_after: 20
