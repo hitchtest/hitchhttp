@@ -31,34 +31,28 @@ class MainHandler(tornado.web.RequestHandler):
         sys.stdout.flush()
 
     def process(self):
-        request = http_request.MockRequest(
-            self.request.method,
-            self.request.path,
-            self.request.uri,
-            self.request.headers,
-            self.request.body.decode('utf8'),
-        )
+        actual_request = http_request.MockRequest(self.request)
 
         if self.settings['record']:
             response = requests.request(
                 self.request.method,
                 "{}{}".format(self.settings['redirection_url'], self.request.uri),
-                headers=request.headers_without_host,
-                data=request.request_data,
+                headers=actual_request.headers_without_host,
+                data=actual_request.request_data,
             )
 
             yaml_snip = {}
             yaml_snip['request'] = {
                 "path": self.request.path,
                 "method": self.request.method,
-                "headers": request.headers_without_host,
+                "headers": actual_request.headers_without_host,
             }
 
-            if request.request_data is not None:
-                yaml_snip['request']['data'] = request.body.strip()
+            if actual_request.request_data is not None:
+                yaml_snip['request']['data'] = actual_request.body.strip()
 
-            if request.querystring() != {}:
-                yaml_snip['request']['querystring'] = request.querystring()
+            if actual_request.querystring() != {}:
+                yaml_snip['request']['querystring'] = actual_request.querystring()
 
             yaml_snip['response'] = {
                 "code": response.status_code,
@@ -89,7 +83,7 @@ class MainHandler(tornado.web.RequestHandler):
             self.set_status(response.status_code)
             self.write(response.content)
         else:
-            uri = self.settings['config'].get_matching_uri(request)
+            uri = self.settings['config'].get_matching_uri(actual_request)
 
             if uri is not None:
                 time.sleep(uri.wait)
@@ -101,7 +95,7 @@ class MainHandler(tornado.web.RequestHandler):
                         self.set_header(header_var, header_val)
                 self.write(uri.response_content.encode('utf8'))
                 self.log_json(
-                    uri.name, request.to_dict(uri.name), uri.response_content
+                    uri.name, actual_request.to_dict(uri.name), uri.response_content
                 )
             else:
                 self.set_status(404)
@@ -111,7 +105,7 @@ class MainHandler(tornado.web.RequestHandler):
                 )
                 self.log_json(
                     None,
-                    request.to_dict(None),
+                    actual_request.to_dict(None),
                     self.default_response.format(self.request.path)
                 )
 

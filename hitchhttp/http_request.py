@@ -1,23 +1,19 @@
-import urllib
-import cgi
+from urllib import parse
 
 
 class MockRequest(object):
     """Representation of a request."""
-    def __init__(self, command, path, uri, headers, body):
-        self.command = command
-        self.path = path
-        self._headers = dict(headers)
+    def __init__(self, tornado_request_obj):
+        body = tornado_request_obj.body.decode('utf8')
+        self.command = tornado_request_obj.method
+        self.path = tornado_request_obj.path
+        self._headers = dict(tornado_request_obj.headers)
         self.ctype = None
         self.length = 0
         self.request_data = None
-        self.uri = uri
+        self.uri = tornado_request_obj.uri
         self._body = body
         self.request_data = body
-
-        if headers.get('content-type') is not None:
-            self.ctype, self.pdict = cgi.parse_header(headers.get('content-type'))
-            self.length = int(headers.get('content-length', "0"))
 
     @property
     def body(self):
@@ -25,7 +21,7 @@ class MockRequest(object):
 
     def querystring(self):
         qs = {}
-        for key, value in urllib.parse.parse_qsl(urllib.parse.urlparse(self.uri).query):
+        for key, value in parse.parse_qsl(parse.urlparse(self.uri).query):
             if key in qs:
                 qs[key].append(value)
             else:
@@ -54,10 +50,8 @@ class MockRequest(object):
         return {
             'match': name,
             'command': self.command,
-            'path': self.path,
+            'uri': self.uri,
             'headers': self._headers,
             'querystring': self.querystring(),
-            'length': self.length,
             'request_data': self.request_data,
-            'encoding': self.ctype,
         }
