@@ -31,7 +31,7 @@ class MockRestURI(object):
         self.method = uri_dict['request'].get('method', None)
         self.headers = uri_dict['request'].get('headers', None)
         self.return_code = int(uri_dict['response'].get('code', '200'))
-        self.request_content_type = uri_dict['request'].get("headers", {}).get('Content-Type')
+        self.request_content_type = uri_dict['request'].get("headers", {}).get('Content-Type', '')
         self.response_content_type = uri_dict['response'].get("headers", {})\
                                                          .get('Content-Type', 'text/plain')
         self.response_location = uri_dict['response'].get('location', None)
@@ -74,7 +74,7 @@ class MockRestURI(object):
                         return False
 
         # Match processed request data
-        if self.request_data is not None:
+        if self.request_data is not None and self.request_data != "":
             if self.request_content_type.startswith("application/json"):
                 if json.loads(request.body) != json.loads(self.request_data):
                     return False
