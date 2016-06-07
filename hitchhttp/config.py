@@ -1,6 +1,4 @@
 from hitchhttp.mock_rest_uri import MockRestURI
-from jinja2.environment import Environment
-from jinja2 import FileSystemLoader, exceptions
 from os import path
 import yaml
 import sys
@@ -15,19 +13,9 @@ class MockRestConfig(object):
             self._config = []
         else:
             try:
-                env = Environment()
-                env.loader = FileSystemLoader(path.split(filename)[0])
-                try:
-                    template = env.get_template(path.split(filename)[1])
-                except exceptions.TemplateError as error:
-                    sys.stderr.write(
-                        "Jinja2 error in '{}' on line {}:\n==> {}\n".format(
-                            error.filename, error.lineno, str(error)
-                        )
-                    )
-                    sys.exit(1)
+                with open(filename, 'r') as handle:
+                    self._yaml = handle.read()
 
-                self._yaml = template.render()
                 self._config = yaml.load(self._yaml)
             except Exception as e:
                 sys.stderr.write(
