@@ -79,7 +79,7 @@ class MainHandler(tornado.web.RequestHandler):
                     response_filename
                 )
 
-                with open(full_response_filename) as handle:
+                with open(full_response_filename, 'w') as handle:
                     handle.write(response_content)
                 yaml_snip['response']['content'] = {"file": response_filename}
 
