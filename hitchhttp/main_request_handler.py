@@ -1,4 +1,5 @@
 from hitchhttp import http_request
+from os import path
 import tornado.web
 import tornado
 import requests
@@ -68,7 +69,17 @@ class MainHandler(tornado.web.RequestHandler):
                 yaml_snip['response']['content'] = response_content
             else:
                 response_filename = "{}.content".format(random.randrange(1, 99999999))
-                with open(response_filename, 'w') as handle:
+
+                full_response_filename = path.join(
+                    path.dirname(
+                        path.abspath(
+                            self.settings['record_to_filename']
+                        )
+                    ),
+                    response_filename
+                )
+
+                with open(full_response_filename) as handle:
                     handle.write(response_content)
                 yaml_snip['response']['content'] = {"file": response_filename}
 
