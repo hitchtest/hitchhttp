@@ -1,2 +1,3 @@
-file not found
-save .content files to the right directory.
+save .content files to the right directory -- write test.
+Capital C Capital T - Content-Type
+No content - shouldn't be a content type. Content type shouldnt' matter.
