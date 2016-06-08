@@ -1,7 +1,12 @@
 - name: Record and playback HTTP request
+  description:
+    Record a GET and a POST request against a 2nd
+    mock server.
   tags:
     - record
     - playback
+    - get
+    - post
   preconditions:
     config_files:
       config.http: |
@@ -13,6 +18,13 @@
             data: '{"a": "x", "b": "y"}'
           response:
             content: <html><body>hello1</body></html>
+        - request:
+            method: get
+            path: /get
+            headers:
+              Content-Type: application/json
+          response:
+            content: <html><body>hello2</body></html>
   scenario:
     - Start services:
         MockHttp:
@@ -31,6 +43,11 @@
         contains: hello1
         headers:
           Content-Type: application/json
+    - Assert request response contains:
+        url: "http://localhost:10088/get"
+        headers:
+          Content-Type: application/json
+        contains: hello2
     - Stop services
     - Start services:
         MockHttp:
@@ -43,5 +60,18 @@
         url: "http://localhost:10088/hello"
         data: '{"b": "y", "a": "x"}'
         contains: hello1
+        headers:
+          Content-Type: application/json
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10088/hello"
+        data: '{"b": "y", "a": "x"}'
+        contains: hello1
+        headers:
+          Content-Type: application/json
+    - Assert request response contains:
+        method: get
+        url: "http://localhost:10088/get"
+        contains: hello2
         headers:
           Content-Type: application/json

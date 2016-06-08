@@ -74,26 +74,29 @@ class MockRestURI(object):
                         return False
 
         # Match processed request data
-        if self.request_data is not None and self.request_data != "":
-            if self.request_content_type.startswith("application/json"):
-                if json.loads(request.body) != json.loads(self.request_data):
-                    return False
-            elif self.request_content_type.startswith("multipart/form-data"):
-                ctype, pdict = cgi.parse_header(request.headers.get('Content-Type'))
-                req_multipart = cgi.parse_multipart(
-                    io.BytesIO(request.body.encode('utf8')),
-                    {x: y.encode('utf8') for x, y in pdict.items()}
-                )
+        if self.request_data is not None:
+            
+            # Check if exact match before parsing
+            if request.body != self.request_data:
+                if self.request_content_type.startswith("application/json"):
+                    if json.loads(request.body) != json.loads(self.request_data):
+                        return False
+                elif self.request_content_type.startswith("multipart/form-data"):
+                    ctype, pdict = cgi.parse_header(request.headers.get('Content-Type'))
+                    req_multipart = cgi.parse_multipart(
+                        io.BytesIO(request.body.encode('utf8')),
+                        {x: y.encode('utf8') for x, y in pdict.items()}
+                    )
 
-                ctype, pdict = cgi.parse_header(self.headers.get('Content-Type'))
-                mock_multipart = cgi.parse_multipart(
-                    io.BytesIO(self.request_data.encode('utf8')),
-                    {x: y.encode('utf8') for x, y in pdict.items()}
-                )
-                return mock_multipart == req_multipart
-            else:
-                if request.body != self.request_data:
-                    return False
+                    ctype, pdict = cgi.parse_header(self.headers.get('Content-Type'))
+                    mock_multipart = cgi.parse_multipart(
+                        io.BytesIO(self.request_data.encode('utf8')),
+                        {x: y.encode('utf8') for x, y in pdict.items()}
+                    )
+                    return mock_multipart == req_multipart
+                else:
+                    if request.body != self.request_data:
+                        return False
 
         return True
 
