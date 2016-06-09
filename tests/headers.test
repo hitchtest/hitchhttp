@@ -1,4 +1,7 @@
 - name: Make http request matching header
+  description: |
+    Ensure that headers are matched in a
+    case insensitive way.
   tags:
     - request
     - headers
@@ -11,6 +14,12 @@
               Authorization: yesitsme
           response:
             content: <html><body>correct1</body></html>
+        - request:
+            path: /goodbye
+            headers:
+              authorization: yesitsme
+          response:
+            content: <html><body>correct2</body></html>
   scenario:
     - Start services:
         MockHttp:
@@ -21,7 +30,11 @@
         headers:
           Authorization: yesitsme
         contains: correct1
-        timeout: 1000
+    - Assert request response contains:
+        url: http://localhost:10088/goodbye
+        headers:
+          Authorization: yesitsme
+        contains: correct2
     - Assert request response contains:
         url: http://localhost:10088/hello
         contains: No matching

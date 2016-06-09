@@ -1,5 +1,6 @@
 from urllib import parse as urlparse
 from hitchhttp import status_codes
+from requests.structures import CaseInsensitiveDict
 import xeger
 import json
 import cgi
@@ -29,11 +30,9 @@ class MockRestURI(object):
         self.querystring = urlparse.parse_qs(urlparse.urlparse(self.fullpath).query)
 
         self.method = uri_dict['request'].get('method', None)
-        self.headers = uri_dict['request'].get('headers', None)
+        self.headers = CaseInsensitiveDict(uri_dict['request'].get('headers', {}))
         self.return_code = int(uri_dict['response'].get('code', '200'))
-        self.request_content_type = uri_dict['request'].get("headers", {}).get('Content-Type', '')
-        self.response_content_type = uri_dict['response'].get("headers", {})\
-                                                         .get('Content-Type', 'text/plain')
+        self.request_content_type = self.headers.get('Content-Type', '')
         self.response_location = uri_dict['response'].get('location', None)
         self.response_content = uri_dict['response'].get('content', "")
         self.wait = float(uri_dict['response'].get('wait', 0.0))
@@ -60,22 +59,23 @@ class MockRestURI(object):
         # Match headers
         if self.headers is not None:
             for header_var, header_value in self.headers.items():
-                if header_var not in request.headers:
+                request_headers = CaseInsensitiveDict(request.headers)
+                if request_headers.get(header_var) is None:
                     return False
-                else:
-                    req_maintext, req_pdict = cgi.parse_header(request.headers.get(header_var))
-                    mock_maintext, mock_pdict = cgi.parse_header(header_value)
+                
+                req_maintext, req_pdict = cgi.parse_header(request_headers.get(header_var))
+                mock_maintext, mock_pdict = cgi.parse_header(header_value)
 
-                    if "boundary" in req_pdict and "boundary" in mock_pdict:
-                        req_pdict['boundary'] = "xxx"
-                        mock_pdict['boundary'] = "xxx"
+                if "boundary" in req_pdict and "boundary" in mock_pdict:
+                    req_pdict['boundary'] = "xxx"
+                    mock_pdict['boundary'] = "xxx"
 
-                    if req_maintext != mock_maintext and req_pdict != mock_pdict:
-                        return False
+                if req_maintext != mock_maintext and req_pdict != mock_pdict:
+                    return False
+
 
         # Match processed request data
         if self.request_data is not None:
-            
             # Check if exact match before parsing
             if request.body != self.request_data:
                 if self.request_content_type.startswith("application/json"):
