@@ -14,3 +14,9 @@
       "request_parameter": None,
     }
 }
+
+* Add custom matching rules:
+** exact-string-matching
+** For application/x-www-form-url-encoding -- order-of-keys-matters
+** For application/json -- order-of-keys-matters
+** For application/xml -- god only knows what rules we need

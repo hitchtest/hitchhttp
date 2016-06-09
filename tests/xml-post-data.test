@@ -1,0 +1,35 @@
+- name: Make application/xml http request
+  tags:
+    - request
+    - xml
+    - post
+    - skip
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            path: /hello
+            method: post
+            data: '<tag1><taga>contenta</taga><tagb>contentb</tagb></tag1>'
+            headers:
+              Content-Type: application/xml
+          response:
+            content: <html><body>correct</body></html>
+  scenario:
+    - Start services:
+        MockHttp:
+          - serve
+          - config.http
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        method: post
+        data: >
+          <tag1><taga>contenta</taga>  <tagb>contentb</tagb></tag1>
+        headers:
+          Content-Type: application/xml
+        contains: correct
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        headers:
+          Content-Type: application/xml
+        contains: No matching
