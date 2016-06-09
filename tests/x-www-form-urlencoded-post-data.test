@@ -1,0 +1,28 @@
+- name: Make application/x-www-form-urlencoded http request
+  tags:
+    - request
+    - form-urlencoded
+    - post
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            path: /hello
+            method: post
+            data: 'a=1&b=2&a=3'
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+          response:
+            content: <html><body>correct</body></html>
+  scenario:
+    - Start services:
+        MockHttp:
+          - serve
+          - config.http
+    - Assert request response contains:
+        url: http://localhost:10088/hello
+        method: post
+        data: 'a=3&a=1&b=2'
+        headers:
+          Content-Type: application/x-www-form-urlencoded
+        contains: correct
