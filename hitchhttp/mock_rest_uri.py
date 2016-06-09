@@ -62,7 +62,7 @@ class MockRestURI(object):
                 request_headers = CaseInsensitiveDict(request.headers)
                 if request_headers.get(header_var) is None:
                     return False
-                
+
                 req_maintext, req_pdict = cgi.parse_header(request_headers.get(header_var))
                 mock_maintext, mock_pdict = cgi.parse_header(header_value)
 
@@ -70,9 +70,12 @@ class MockRestURI(object):
                     req_pdict['boundary'] = "xxx"
                     mock_pdict['boundary'] = "xxx"
 
-                if req_maintext != mock_maintext and req_pdict != mock_pdict:
+                if req_maintext != mock_maintext:
                     return False
 
+                if mock_pdict != {}:
+                    if req_pdict != mock_pdict:
+                        return False
 
         # Match processed request data
         if self.request_data is not None:

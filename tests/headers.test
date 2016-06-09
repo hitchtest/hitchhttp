@@ -18,8 +18,15 @@
             path: /goodbye
             headers:
               authorization: yesitsme
+              content-type: application/json
           response:
             content: <html><body>correct2</body></html>
+        - request:
+            path: /content-type
+            headers:
+              content-type: application/json;encoding=utf8
+          response:
+            content: <html><body>correct3</body></html>
   scenario:
     - Start services:
         MockHttp:
@@ -34,7 +41,20 @@
         url: http://localhost:10088/goodbye
         headers:
           Authorization: yesitsme
+          Content-Type: application/json;encoding=utf8
         contains: correct2
+    - Assert request response contains:
+        url: http://localhost:10088/content-type
+        headers:
+          Authorization: yesitsme
+          Content-Type: application/json;encoding=utf8
+        contains: correct3
+    - Assert request response contains:
+        url: http://localhost:10088/content-type
+        headers:
+          Authorization: yesitsme
+          Content-Type: application/json
+        contains: No matching
     - Assert request response contains:
         url: http://localhost:10088/hello
         contains: No matching
