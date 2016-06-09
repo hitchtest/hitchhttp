@@ -1,5 +1,5 @@
 - name: Record and playback HTTP request
-  description:
+  description: |
     Record a GET and a POST request against a 2nd
     mock server.
   tags:
