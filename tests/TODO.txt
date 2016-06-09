@@ -1,3 +1,16 @@
-save .content files to the right directory -- write test.
-Capital C Capital T - Content-Type
-No content - shouldn't be a content type. Content type shouldnt' matter.
+* Save .content files to a different directory to the YAML recording directory.
+* XML matching - with various different kinds of equality matching algorithms.
+* JSONP matching
+* Closest match --- which pair (number), rules matching, rules not matching
+
+{
+  "closest_match":
+    {
+      "index": 0,
+      "request": request,
+      "matching_rules": ["method", "querystring",],
+      "non_matching_rule_name": "header-parameters",
+      "mock_parameter": "authorization"
+      "request_parameter": None,
+    }
+}
