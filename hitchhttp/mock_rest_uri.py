@@ -1,7 +1,8 @@
 from urllib import parse as urlparse
 from hitchhttp import status_codes
 from requests.structures import CaseInsensitiveDict
-from hitchhttp.utils import parse_qsl_as_dict
+from hitchhttp.utils import parse_qsl_as_dict, xml_elements_equal
+import lxml.etree as etree
 import xeger
 import json
 import cgi
@@ -89,11 +90,10 @@ class MockRestURI(object):
                     if parse_qsl_as_dict(request.body) != parse_qsl_as_dict(self.request_data):
                         return False
                 elif self.request_content_type.startswith('application/xml'):
-                    import lxml.etree as etree
                     actual_request_data_root = etree.fromstring(request.body)
                     mock_request_data_root = etree.fromstring(self.request_data)
 
-                    if actual_request_data_root != mock_request_data_root:
+                    if not xml_elements_equal(actual_request_data_root, mock_request_data_root):
                         return False
                 elif self.request_content_type.startswith("multipart/form-data"):
                     ctype, pdict = cgi.parse_header(request.headers.get('Content-Type'))

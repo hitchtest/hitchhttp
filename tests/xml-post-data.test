@@ -10,7 +10,7 @@
         - request:
             path: /hello
             method: post
-            data: '<tag1><taga>contenta</taga><tagb>contentb</tagb></tag1>'
+            data: '<tag1><taga x="1" y="2">contenta</taga><tagb>contentb</tagb></tag1>'
             headers:
               Content-Type: application/xml
           response:
@@ -24,7 +24,7 @@
         url: http://localhost:10088/hello
         method: post
         data: >
-          <tag1><taga>contenta</taga>  <tagb>contentb</tagb></tag1>
+          <tag1><taga y="2" x="1">contenta</taga><tagb>contentb</tagb></tag1>
         headers:
           Content-Type: application/xml
         contains: correct
