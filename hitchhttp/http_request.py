@@ -21,7 +21,10 @@ class MockRequest(object):
 
     def querystring(self):
         qs = {}
-        for key, value in parse.parse_qsl(parse.urlparse(self.uri).query):
+        for key, value in parse.parse_qsl(
+            parse.urlparse(self.uri).query,
+            keep_blank_values=True
+        ):
             if key in qs:
                 qs[key].append(value)
             else:

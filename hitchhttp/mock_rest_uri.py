@@ -86,7 +86,7 @@ class MockRestURI(object):
                 if self.request_content_type.startswith("application/json"):
                     if json.loads(request.body) != json.loads(self.request_data):
                         return False
-                if self.request_content_type.startswith("application/x-www-form-urlencoded"):
+                elif self.request_content_type.startswith("application/x-www-form-urlencoded"):
                     if parse_qsl_as_dict(request.body) != parse_qsl_as_dict(self.request_data):
                         return False
                 elif self.request_content_type.startswith('application/xml'):

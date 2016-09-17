@@ -18,6 +18,7 @@
               variable:
                 - value1
                 - value2
+              variable2:
           response:
             content: <html><body>correct2</body></html>
         - request:
@@ -63,7 +64,7 @@
         url: http://localhost:10088/hello1?variable=value
         contains: correct1
     - Assert request response contains:
-        url: http://localhost:10088/hello2?variable=value1&variable=value2
+        url: http://localhost:10088/hello2?variable=value1&variable=value2&variable2=
         contains: correct2
     - Assert request response contains:
         url: http://localhost:10088/hello1?variable=value2
