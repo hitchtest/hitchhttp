@@ -16,7 +16,13 @@
 }
 
 * Add custom matching rules:
-** exact-string-matching
+** exact string matching
 ** For application/x-www-form-url-encoding -- order-of-keys-matters
 ** For application/json -- order-of-keys-matters
-** For application/xml -- god only knows what rules we need
+** For application/xml -- the 3 different kinds of matching.
+
+* Raise exception if not valid URL specified on command line.
+
+* Order request/response data sanely.
+
+* Handle blank strings in query string when recording.
