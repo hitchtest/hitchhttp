@@ -1,10 +1,12 @@
 from hitchhttp import http_request
+from ruamel.yaml import dump
+from ruamel.yaml.dumper import RoundTripDumper
+from ruamel.yaml.comments import CommentedMap
 from os import path
 import tornado.web
 import tornado
 import requests
 import random
-import yaml
 import json
 import time
 import sys
@@ -42,25 +44,20 @@ class MainHandler(tornado.web.RequestHandler):
                 data=actual_request.request_data,
             )
 
-            yaml_snip = {}
-            yaml_snip['request'] = {
-                "path": self.request.path,
-                "method": self.request.method,
-                "headers": actual_request.headers_without_host,
-            }
+            yaml_snip = CommentedMap()
+            yaml_snip['request'] = CommentedMap()
+            yaml_snip['request']['path'] = self.request.uri
+            yaml_snip['request']['method'] = self.request.method
+            yaml_snip['request']['headers'] = actual_request.headers_without_host
 
             if actual_request.request_data is not None:
                 yaml_snip['request']['data'] = actual_request.body.strip()
 
-            if actual_request.querystring() != {}:
-                yaml_snip['request']['querystring'] = actual_request.querystring()
-
-            yaml_snip['response'] = {
-                "code": response.status_code,
-                "headers": {
-                    item[0]: item[1] for item in dict(response.headers).items()
-                    if item[0].lower() not in ["transfer-encoding", "content-encoding", ]
-                },
+            yaml_snip['response'] = CommentedMap()
+            yaml_snip['response']['code'] = response.status_code
+            yaml_snip['response']["headers"] = {
+                item[0]: item[1] for item in dict(response.headers).items()
+                if item[0].lower() not in ["transfer-encoding", "content-encoding", ]
             }
 
             response_content = response.content.decode('utf8')
@@ -84,7 +81,9 @@ class MainHandler(tornado.web.RequestHandler):
                 yaml_snip['response']['content'] = {"file": response_filename}
 
             with open(self.settings['record_to_filename'], 'a') as handle:
-                handle.write("\n{}".format(yaml.dump([yaml_snip], default_flow_style=False)))
+                handle.write("\n{}".format(
+                    dump([yaml_snip], default_flow_style=False, Dumper=RoundTripDumper))
+                )
 
             for header_var, header_val in response.headers.items():
                 if header_var.lower() not in ["transfer-encoding", "content-encoding", ]:

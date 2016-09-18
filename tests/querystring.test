@@ -6,46 +6,23 @@
     config_files:
       config.http: |
         - request:
-            path: /hello1
-            querystring:
-              variable:
-                - value
+            path: /hello1?variable=value
           response:
             content: <html><body>correct1</body></html>
         - request:
-            path: /hello2
-            querystring:
-              variable:
-                - value1
-                - value2
-              variable2:
+            path: /hello2?variable=value1&variable=value2&variable2=
           response:
             content: <html><body>correct2</body></html>
         - request:
-            path: /hello3
-            querystring:
-              userId:
-                - "3318465"
-              houseNo:
-                - "27"
-              postcode:
-                - nw12sd
+            path: /hello3?userId=3318465&houseNo=27&postcode=nw12sd
           response:
             content: <html><body>correct3</body></html>
         - request:
-            path: /hello4
-            querystring:
-              x:
-                - a b
-              y:
-                - a b
+            path: /hello4?x=a%20b&y=a+b
           response:
             content: <html><body>correct4</body></html>
         - request:
-            path: /hello5
-            querystring:
-              x: q
-              y: z
+            path: /hello5?y=z&x=q
           response:
             content: <html><body>correct5</body></html>
   scenario:

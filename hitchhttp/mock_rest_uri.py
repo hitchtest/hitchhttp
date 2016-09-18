@@ -29,7 +29,10 @@ class MockRestURI(object):
         self._regexp = False
 
         self.path = urlparse.urlparse(self.fullpath).path
-        self.querystring = urlparse.parse_qs(urlparse.urlparse(self.fullpath).query)
+        self.querystring = urlparse.parse_qs(
+            urlparse.urlparse(self.fullpath).query,
+            keep_blank_values=True
+        )
 
         self.method = uri_dict['request'].get('method', None)
         self.headers = CaseInsensitiveDict(uri_dict['request'].get('headers', {}))
@@ -39,7 +42,6 @@ class MockRestURI(object):
         self.response_content = uri_dict['response'].get('content', "")
         self.wait = float(uri_dict['response'].get('wait', 0.0))
         self.request_data = uri_dict['request'].get('data', None)
-        self.querystring = convert_querystring(uri_dict['request'].get("querystring", {}))
         self.encoding = uri_dict['request'].get("encoding", None)
         self.response_headers = uri_dict['response'].get("headers", {})
 

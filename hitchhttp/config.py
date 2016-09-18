@@ -1,6 +1,6 @@
 from hitchhttp.mock_rest_uri import MockRestURI
 from os import path
-import yaml
+from strictyaml import load, Map, Optional, MapPattern, Str, Enum, Seq, Int
 import sys
 
 
@@ -16,7 +16,28 @@ class MockRestConfig(object):
                 with open(filename, 'r') as handle:
                     self._yaml = handle.read()
 
-                self._config = yaml.load(self._yaml)
+                self._config = load(
+                    self._yaml,
+                    Seq(
+                        Map({
+                            Optional("name"): "name",
+                            "request": Map({
+                                Optional("path"): Str(),
+                                Optional("method"): Enum([
+                                    "get", "post", "put", "delete",
+                                    "GET", "POST", "PUT", "DELETE",
+                                ]),
+                                Optional("headers"): MapPattern(Str(), Str()),
+                                Optional("data"): Str(),
+                            }),
+                            "response": Map({
+                                "content": Str() | Map({"file": Str()}),
+                                Optional("code"): Int(),
+                                Optional("headers"): MapPattern(Str(), Str()),
+                            }),
+                        })
+                    )
+                )
             except Exception as e:
                 sys.stderr.write(
                     "Error reading YAML config file: {0}\n".format(str(e))

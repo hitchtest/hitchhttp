@@ -1,3 +1,4 @@
 python_versions:
   - 3.5.0
   - 2.7.11
+failfast: true

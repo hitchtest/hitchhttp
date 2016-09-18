@@ -1,4 +1,4 @@
-- name: Invalid yaml
+- name: Invalid yaml structure
   tags:
     - skip
     - request
@@ -17,4 +17,5 @@
         args:
           - serve
           - config.http
-    - Expect: YAML validation error
+    - Expect: |
+        Error reading YAML config file: Invalid key found querystring
