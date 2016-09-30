@@ -37,10 +37,15 @@ class MockHTTPHandler(tornado.web.RequestHandler):
         actual_request = http_request.MockRequest(self.request)
 
         if self.settings['record']:
+            headers_to_request_with = actual_request.headers_without_host
+
+            if self.settings['intercept'] is not None:
+                headers_to_request_with.update(self.settings['intercept'])
+
             response = requests.request(
                 self.request.method,
                 "{}{}".format(self.settings['redirection_url'], self.request.uri),
-                headers=actual_request.headers_without_host,
+                headers=headers_to_request_with,
                 data=actual_request.request_data,
             )
 

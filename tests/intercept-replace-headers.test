@@ -1,0 +1,45 @@
+- name: Record and playback HTTP request
+  description: |
+    Record a GET and intercept, adding the header
+    referer.
+  tags:
+    - record
+    - playback
+    - get
+    - intercept
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            method: post
+            path: /hello
+            headers:
+              Content-Type: application/json
+              Referer: google.com
+          response:
+            content: <html><body>hello1</body></html>
+  scenario:
+    - Set up service:
+        name: InterceptHttp
+        args:
+          - serve
+          - config.http
+          - --port
+          - '9999'
+    - Set up service:
+        name: Interceptor
+        args:
+          - record
+          - http://localhost:9999
+          - recordedconfig.http
+          - --port
+          - '10088'
+          - --intercept
+          - '{"Referer": "google.com"}'
+    - Start services
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10088/hello"
+        contains: hello1
+        headers:
+          Content-Type: application/json

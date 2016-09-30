@@ -5,6 +5,7 @@ from hitchhttp.monitor import MonitorHandler
 from hitchhttp import config
 from os import path, remove
 import signal
+import json
 import sys
 import tornado.ioloop
 import tornado.web
@@ -43,7 +44,8 @@ def serve(config_filename, port):
 @argument('redirection_url', required=True)
 @argument('config_filename', required=True)
 @option('-p', '--port', default=10088, help='Run on port.')
-def record(redirection_url, config_filename, port):
+@option('-i', '--intercept', default=None, help='Intercept and replace/add header(s) (specify with JSON).')
+def record(redirection_url, config_filename, port, intercept):
     def signal_handler(signal, frame):
         print('')
         sys.exit(0)
@@ -61,6 +63,7 @@ def record(redirection_url, config_filename, port):
     app.settings['record'] = True
     app.settings['redirection_url'] = redirection_url
     app.settings['record_to_filename'] = config_filename
+    app.settings['intercept'] = json.loads(intercept)
     app.listen(port)
     sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
