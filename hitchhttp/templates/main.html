@@ -1,0 +1,22 @@
+<html>
+<head>
+    <title>Display HTTP Recordings</title>
+    <link rel="stylesheet" href="/milligram-1.1.0.min.css">
+</head>
+<body>
+    <main class="wrapper">
+        <nav class="navigation">
+            <section class="container">
+            </section>
+        </nav>
+
+        <section class="container" id="mocks">
+        {% for filename in mocks %}
+        <ul>
+            <li><a id="{{ filename }}" href="/http/{{ filename }}.http">{{ filename }}.http</a></li>
+        <ul>
+        {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

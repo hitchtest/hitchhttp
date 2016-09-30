@@ -12,7 +12,7 @@ import time
 import sys
 
 
-class MainHandler(tornado.web.RequestHandler):
+class MockHTTPHandler(tornado.web.RequestHandler):
     """Mock REST server request handling."""
     default_response = (
         """

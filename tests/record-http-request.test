@@ -26,16 +26,22 @@
           response:
             content: <html><body>hello2</body></html>
   scenario:
-    - Start services:
-        MockHttp:
+    - Set up service:
+        name: MockHttp
+        args:
           - serve
           - config.http
           - --port
           - '9999'
-        Recorder:
+    - Set up service:
+        name: Recorder
+        args:
           - record
           - http://localhost:9999
           - recordedconfig.http
+          - --port
+          - '10088'
+    - Start services
     - Assert request response contains:
         method: post
         url: "http://localhost:10088/hello"
@@ -49,29 +55,33 @@
           Content-Type: application/json
         contains: hello2
     - Stop services
-    - Start services:
-        MockHttp:
+    - Sleep: 1
+    - Set up service:
+        name: MockHttp
+        args:
           - serve
           - recordedconfig.http
           - --port
-          - '10088'
+          - '10089'
+    - Start services
     - Assert request response contains:
         method: post
-        url: "http://localhost:10088/hello"
+        url: "http://localhost:10089/hello"
         data: '{"b": "y", "a": "x"}'
         contains: hello1
         headers:
           Content-Type: application/json
     - Assert request response contains:
         method: post
-        url: "http://localhost:10088/hello"
+        url: "http://localhost:10089/hello"
         data: '{"b": "y", "a": "x"}'
         contains: hello1
         headers:
           Content-Type: application/json
     - Assert request response contains:
         method: get
-        url: "http://localhost:10088/get"
+        url: "http://localhost:10089/get"
         contains: hello2
         headers:
           Content-Type: application/json
+    - Stop services

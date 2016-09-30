@@ -1,0 +1,39 @@
+- name: Record and playback HTTP request
+  description: |
+    Display config file on web server.
+  tags:
+    - web
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            method: post
+            path: /hello
+            headers:
+              Content-Type: application/json
+            data: '{"a": "x", "b": "y"}'
+          response:
+            content: <html><body>hello1</body></html>
+        - request:
+            method: get
+            path: /get
+            headers:
+              Content-Type: application/json
+          response:
+            content: <html><body>hello2</body></html>
+  scenario:
+    - Set up service:
+        name: Display
+        args:
+          - monitor
+          - .
+          - --port
+          - '8000'
+    - Set up firefox
+    - Start services
+    - Display in browser:
+        url: http://localhost:8000/
+    - Click: config
+    - Wait to contain:
+        item: first method
+        text: post

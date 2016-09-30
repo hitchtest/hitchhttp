@@ -1,4 +1,5 @@
 from commandlib import run
+import hitchselenium
 import hitchpython
 import hitchserve
 import hitchtest
@@ -27,6 +28,9 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             python_version=self.settings['python_version']
         )
         self.python_package.build()
+
+        self.firefox_package = hitchselenium.FirefoxPackage()
+        self.firefox_package.build()
 
         self.python = self.python_package.cmd.python
         self.pip = self.python_package.cmd.pip
@@ -59,22 +63,43 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         for filename, contents in self.preconditions.get("config_files", {}).items():
             self.path.state.joinpath(filename).write_text(contents)
 
-    def start_services(self, **services):
+    def set_up_service(self, name, args):
         """Start specified MockHTTP services."""
-        self.services = hitchserve.ServiceBundle(
-            self.path.project,
-            startup_timeout=8.0,
-            shutdown_timeout=1.0
+        if not hasattr(self, 'services') or self.services is None:
+            self.services = hitchserve.ServiceBundle(
+                self.path.state,
+                startup_timeout=8.0,
+                shutdown_timeout=1.0,
+            )
+        self.services[name] = hitchserve.Service(
+            command=self.hitchhttpcmd(*args).in_dir(self.path.state),
+            log_line_ready_checker=lambda line: "HitchHttp running" in line,
+            directory=str(self.path.state),
         )
 
-        for name, args in services.items():
-            self.services[name] = hitchserve.Service(
-                command=self.hitchhttpcmd(*args).in_dir(self.path.state),
-                log_line_ready_checker=lambda line: "HitchHttp running" in line,
-                directory=str(self.path.state),
-            )
+    def set_up_firefox(self):
+        self.services['Firefox'] = hitchselenium.FirefoxService(
+            xvfb=self.settings.get("xvfb", False),
+            firefox_binary=self.firefox_package.firefox,
+        )
 
+    def start_services(self):
         self.services.startup(interactive=False)
+
+    def display_in_browser(self, url):
+        self.driver = self.services['Firefox'].driver
+        self.webapp = hitchselenium.SeleniumStepLibrary(
+            selenium_webdriver=self.driver,
+            wait_for_timeout=5,
+        )
+
+        self.click = self.webapp.click
+        self.wait_for_any_to_contain = self.webapp.wait_for_any_to_contain
+        self.wait_to_contain = self.webapp.wait_to_contain
+        self.click_and_dont_wait_for_page_load = self.webapp.click_and_dont_wait_for_page_load
+        self.enter = self.webapp.enter_text
+
+        self.driver.get(url)
 
     def lint(self, args=None):
         """Lint the source code."""
@@ -135,6 +160,7 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         if hasattr(self, 'services'):
             if self.services is not None:
                 self.services.shutdown()
+                self.services = None
 
     def tear_down(self):
         """Clean out the state directory."""

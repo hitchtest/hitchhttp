@@ -3,13 +3,16 @@
     - record
     - real
   scenario:
-    - Start services:
-        Recorder:
-          - record
-          - http://api.theenergyshop.co.uk
-          - recordedconfig.http
-    - Assert request response contains:
-        method: post
-        url: "http://localhost:10088/api/v1/suppliers"
-        timeout: 15
-    - Stop services
+    - Placeholder
+    #- Set up service:
+        #name: Recorder
+        #args:
+          #- record
+          #- http://api.theenergyshop.co.uk
+          #- recordedconfig.http
+    #- Start services
+    #- Assert request response contains:
+        #method: post
+        #url: "http://localhost:10088/api/v1/suppliers"
+        #timeout: 15
+    #- Stop services

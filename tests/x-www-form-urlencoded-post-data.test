@@ -15,10 +15,12 @@
           response:
             content: <html><body>correct</body></html>
   scenario:
-    - Start services:
-        MockHttp:
+    - Set up service:
+        name: MockHttp
+        args:
           - serve
           - config.http
+    - Start services
     - Assert request response contains:
         url: http://localhost:10088/hello
         method: post
