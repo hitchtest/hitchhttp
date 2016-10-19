@@ -1,4 +1,5 @@
 from hitchserve import Service
+import json
 import sys
 
 
@@ -13,9 +14,10 @@ class HttpServer(Service):
 
 
 class RecordingHttpServer(Service):
-    def __init__(self, domain, path, port=10088, **kwargs):
+    def __init__(self, domain, path, port=10088, intercept=None, **kwargs):
         kwargs['command'] = [
             sys.executable, "-u", "-m", "hitchhttp.commandline", "record",
+            "--intercept", json.dumps(intercept) if intercept is not None else "{}",
             "--port", str(port), str(domain), str(path)
         ]
         kwargs['log_line_ready_checker'] = lambda line: "HitchHttp running" in line
