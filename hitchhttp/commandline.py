@@ -9,6 +9,7 @@ import json
 import sys
 import tornado.ioloop
 import tornado.web
+import tornado.httpserver
 
 
 @group()
@@ -34,7 +35,11 @@ def serve(config_filename, port):
     app = tornado.web.Application([(r".*", MockHTTPHandler), ])
     app.settings['record'] = False
     app.settings['config'] = config.MockRestConfig(config_filename)
-    app.listen(port)
+
+    server = tornado.httpserver.HTTPServer(app)
+    server.bind(port)
+    server.start(0)
+
     sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
     tornado.ioloop.IOLoop.current().start()
@@ -64,7 +69,10 @@ def record(redirection_url, config_filename, port, intercept):
     app.settings['redirection_url'] = redirection_url
     app.settings['record_to_filename'] = config_filename
     app.settings['intercept'] = json.loads(intercept)
-    app.listen(port)
+    
+    server = tornado.httpserver.HTTPServer(app)
+    server.bind(port)
+    server.start(0)
     sys.stdout.write("HitchHttp running on port {} with config {}\n".format(port, config_filename))
     sys.stdout.flush()
     tornado.ioloop.IOLoop.current().start()
@@ -87,6 +95,7 @@ def monitor(directory, port):
     app = tornado.web.Application([(r".*", MonitorHandler), ])
     app.settings['directory'] = path.abspath(directory)
     app.listen(port)
+
     sys.stdout.write("HitchHttp running on port {} with in directory {}\n".format(port, directory))
     sys.stdout.flush()
     tornado.ioloop.IOLoop.current().start()
