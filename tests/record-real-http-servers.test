@@ -4,15 +4,31 @@
     - real
   scenario:
     - Placeholder
-    #- Set up service:
-        #name: Recorder
-        #args:
-          #- record
-          #- http://api.theenergyshop.co.uk
-          #- recordedconfig.http
-    #- Start services
-    #- Assert request response contains:
-        #method: post
-        #url: "http://localhost:10088/api/v1/suppliers"
-        #timeout: 15
-    #- Stop services
+    - Set up service:
+        name: Recorder
+        args:
+          - record
+          - --intercept
+          - '{}'
+          - http://ichef.bbci.co.uk
+          - recordedconfig2.http
+    - Start services
+    - Assert request response contains:
+        method: get
+        url: "http://localhost:10088/news/640/cpsprodpb/29DF/production/_89991701_mediaitem89991700.jpg"
+        timeout: 15
+    - Stop services
+    - Set up service:
+        name: Recorder
+        args:
+          - record
+          - --intercept
+          - '{}'
+          - http://api.theenergyshop.co.uk
+          - recordedconfig1.http
+    - Start services
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10088/api/v1/suppliers"
+        timeout: 15
+    - Stop services

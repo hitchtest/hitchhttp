@@ -65,7 +65,7 @@ class MockHTTPHandler(tornado.web.RequestHandler):
                 if item[0].lower() not in ["transfer-encoding", "content-encoding", ]
             }
 
-            response_content = response.content.decode('utf8')
+            response_content = response.text
 
             if len(response_content) < 1000:
                 yaml_snip['response']['content'] = response_content
@@ -96,7 +96,8 @@ class MockHTTPHandler(tornado.web.RequestHandler):
 
             self.log_json("record", yaml_snip['request'], yaml_snip['response'])
             self.set_status(response.status_code)
-            self.write(response.content)
+            if response.status_code != 304:
+                self.write(response.content)
         else:
             uri = self.settings['config'].get_matching_uri(actual_request)
 
@@ -108,7 +109,9 @@ class MockHTTPHandler(tornado.web.RequestHandler):
                         "transfer-encoding", "content-encoding", "set-cookie",
                     ]:
                         self.set_header(header_var, header_val)
-                self.write(uri.response_content.encode('utf8'))
+
+                if uri.return_code != 304:
+                    self.write(uri.response_content.encode('utf8'))
                 self.log_json(
                     uri.name, actual_request.to_dict(uri.name), uri.response_content
                 )

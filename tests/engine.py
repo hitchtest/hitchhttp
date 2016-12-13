@@ -114,11 +114,13 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             data=data,
             headers=headers,
             timeout=timeout
-        ).content.decode('utf8')
-        try:
-            assert contains in response
-        except AssertionError:
-            raise AssertionError("{0} not found in {1}".format(contains, response))
+        )
+
+        if data is not None:
+            try:
+                assert contains in response.content.decode('utf8')
+            except AssertionError:
+                raise AssertionError("{0} not found in {1}".format(contains, response))
 
     def hitchhttp(self, args=None):
         """Run hitch in the state directory."""

@@ -18,4 +18,4 @@
           - serve
           - config.http
     - Expect: |
-        Error reading YAML config file: Invalid key found querystring
+        Error reading YAML config file

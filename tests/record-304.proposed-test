@@ -1,0 +1,53 @@
+- name: Record and playback HTTP request
+  description: |
+    Record a GET request that returns a 304.
+  tags:
+    - record
+    - redirection
+    - get
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            method: get
+            path: /hello
+            headers:
+              Content-Type: application/json
+            data: '{"a": "x", "b": "y"}'
+          response:
+            code: 304
+            headers:
+              Location: /get
+            content: ''
+        - request:
+            method: get
+            path: /get
+            headers:
+              Content-Type: application/json
+          response:
+            content: <html><body>hello2</body></html>
+  scenario:
+    - Set up service:
+        name: MockHttp
+        args:
+          - serve
+          - config.http
+          - --port
+          - '9999'
+    - Set up service:
+        name: Recorder
+        args:
+          - record
+          - http://localhost:9999
+          - recordedconfig.http
+          - --port
+          - '10088'
+    - Start services
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10088/hello"
+        data: '{"b": "y", "a": "x"}'
+        contains: hello2
+        headers:
+          Content-Type: application/json
+    - Stop services

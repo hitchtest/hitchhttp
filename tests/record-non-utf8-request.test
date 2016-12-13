@@ -1,0 +1,85 @@
+- name: Record and playback HTTP request
+  description: |
+    Record a request that responds with an image.
+  tags:
+    - record
+    - utf8
+    - get
+  preconditions:
+    config_files:
+      config.http: |
+        - request:
+            method: post
+            path: /hello
+            headers:
+              Content-Type: application/json
+            data: '{"a": "x", "b": "y"}'
+          response:
+            content: <html><body>hello1</body></html>
+        - request:
+            method: get
+            path: /get
+            headers:
+              Content-Type: application/json
+          response:
+            content: <html><body>hello2</body></html>
+  scenario:
+    - Set up service:
+        name: MockHttp
+        args:
+          - serve
+          - config.http
+          - --port
+          - '9999'
+    - Set up service:
+        name: Recorder
+        args:
+          - record
+          - http://localhost:9999
+          - recordedconfig.http
+          - --port
+          - '10088'
+    - Start services
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10088/hello"
+        data: '{"b": "y", "a": "x"}'
+        contains: hello1
+        headers:
+          Content-Type: application/json
+    - Assert request response contains:
+        url: "http://localhost:10088/get"
+        headers:
+          Content-Type: application/json
+        contains: hello2
+    - Stop services
+    - Sleep: 1
+    - Set up service:
+        name: MockHttp
+        args:
+          - serve
+          - recordedconfig.http
+          - --port
+          - '10089'
+    - Start services
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10089/hello"
+        data: '{"b": "y", "a": "x"}'
+        contains: hello1
+        headers:
+          Content-Type: application/json
+    - Assert request response contains:
+        method: post
+        url: "http://localhost:10089/hello"
+        data: '{"b": "y", "a": "x"}'
+        contains: hello1
+        headers:
+          Content-Type: application/json
+    - Assert request response contains:
+        method: get
+        url: "http://localhost:10089/get"
+        contains: hello2
+        headers:
+          Content-Type: application/json
+    - Stop services

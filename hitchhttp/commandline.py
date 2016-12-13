@@ -49,7 +49,12 @@ def serve(config_filename, port):
 @argument('redirection_url', required=True)
 @argument('config_filename', required=True)
 @option('-p', '--port', default=10088, help='Run on port.')
-@option('-i', '--intercept', default=None, help='Intercept and replace/add header(s) (specify with JSON).')
+@option(
+    '-i',
+    '--intercept',
+    default=None,
+    help='Intercept and replace/add header(s) (specify with JSON).'
+)
 def record(redirection_url, config_filename, port, intercept):
     def signal_handler(signal, frame):
         print('')
@@ -66,10 +71,10 @@ def record(redirection_url, config_filename, port, intercept):
 
     app = tornado.web.Application([(r".*", MockHTTPHandler), ])
     app.settings['record'] = True
-    app.settings['redirection_url'] = redirection_url
     app.settings['record_to_filename'] = config_filename
-    app.settings['intercept'] = json.loads(intercept)
-    
+    app.settings['redirection_url'] = redirection_url
+    app.settings['intercept'] = json.loads(intercept) if intercept is not None else None
+
     server = tornado.httpserver.HTTPServer(app)
     server.bind(port)
     server.start(0)
