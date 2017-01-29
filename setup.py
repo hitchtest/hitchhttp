@@ -2,6 +2,12 @@
 from setuptools import setup, find_packages
 import os
 import codecs
+import sys
+
+
+if sys.version_info < (3, 5):
+    sys.stderr.write("HitchHttp will not run in python versions lower than 3.5.0, this version is {0}.\n".format(sys.version_info))
+    exit(1)
 
 
 def read(*parts):
@@ -38,7 +44,18 @@ setup(name="hitchhttp",
       author_email='colm.oconnor.github@gmail.com',
       url='https://hitchtest.readthedocs.org/',
       license='AGPL',
-      install_requires=['xeger', 'strictyaml', 'click', 'hitchserve', 'hitchtest', 'requests', 'tornado', 'lxml', 'path.py', ],
+      install_requires=[
+          'xeger',
+          'strictyaml',
+          'click',
+          'hitchserve',
+          'hitchtest',
+          'requests',
+          'tornado',
+          'lxml',
+          'path.py',
+          'peewee>=2.1.0',
+      ],
       packages=find_packages(exclude=[]),
       entry_points=dict(console_scripts=['hitchhttp=hitchhttp:main', ]),
       zip_safe=False,
