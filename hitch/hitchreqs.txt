@@ -1,0 +1,50 @@
+appdirs==1.4.0            # via setuptools
+argcomplete==1.7.0        # via hitchrun
+click==6.7                # via hitchrun, hitchtest
+colorama==0.3.7           # via hitchserve, hitchstory, hitchtest
+commandlib==0.2.5         # via hitchrun, hitchserve, hitchtest
+decorator==4.0.11         # via ipython, traitlets
+docopt==0.6.2             # via pykwalify
+faketime==0.9.6.6         # via hitchserve
+hitchpython==0.5.3
+hitchrun==0.1.6
+hitchserve==0.5.1
+hitchstory==0.1.2
+hitchtest==0.9.12         # via hitchpython
+hitchtrigger==0.2
+humanize==0.5.1           # via hitchserve, hitchtrigger
+ipython-genutils==0.1.0   # via traitlets
+ipython==4.2.1            # via hitchtest
+jinja2==2.9.4             # via hitchstory, hitchtest
+jupyter-client==4.4.0     # via hitchpython
+jupyter-core==4.2.1       # via jupyter-client
+markupsafe==0.23          # via jinja2
+packaging==16.8           # via setuptools
+path.py==10.0             # via hitchrun, hitchstory, hitchtest, pathquery
+pathquery==0.2.0          # via hitchstory
+patool==1.12              # via hitchtest
+peewee==2.8.5             # via hitchtrigger
+pexpect==4.2.1            # via ipython
+pickleshare==0.7.4        # via ipython
+psutil==5.0.1             # via hitchserve, hitchtest
+ptyprocess==0.5.1         # via pexpect
+pykwalify==1.6.0          # via hitchtest
+pyparsing==2.1.10         # via packaging
+python-build==0.2.13      # via hitchpython
+python-dateutil==2.6.0    # via pykwalify, strictyaml
+python-slugify==1.2.1     # via hitchstory
+pyuv==1.3.0               # via hitchserve
+PyYAML==3.12              # via hitchtest, pykwalify
+pyzmq==16.0.2             # via jupyter-client
+ruamel.yaml==0.13.9       # via strictyaml
+simplegeneric==0.8.1      # via ipython
+six==1.10.0               # via packaging, python-dateutil, setuptools, traitlets
+strictyaml==0.4.1         # via hitchstory
+tblib==1.3.0              # via hitchserve
+traitlets==4.3.1          # via ipython, jupyter-client, jupyter-core
+unidecode==0.4.20         # via python-slugify
+unixpackage==0.4.5        # via hitchtest
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip                       # via hitchrun
+# setuptools                # via ipython
