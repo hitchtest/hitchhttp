@@ -1,6 +1,7 @@
 from hitchstory import StoryCollection, BaseEngine, validate
-from hitchrun import Path, hitch_maintenance
+from hitchrun import Path, hitch_maintenance, expected
 from pathquery import pathq
+from commandlib import python, CommandError
 import hitchpython
 import hitchserve
 import hitchtrigger
@@ -102,11 +103,22 @@ def hitch(*args):
     hitch_maintenance(*args)
 
 
+@expected(CommandError)
 def lint():
     """
     Lint all code.
     """
-    print("placeholder")
+    python("-m", "flake8")(
+        KEYPATH.parent.joinpath("hitchhttp"),
+        "--max-line-length=100",
+        "--exclude=__init__.py",
+    ).run()
+    python("-m", "flake8")(
+        KEYPATH.joinpath("key.py"),
+        "--max-line-length=100",
+    ).run()
+    print("Lint success!")
+
 
 
 def clean():
