@@ -7,3 +7,4 @@ dist/
 state/
 hitchhttp.egg-info/
 .hitch
+hitch/gen

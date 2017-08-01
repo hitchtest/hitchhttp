@@ -1,6 +1,10 @@
-hitchstory
 hitchpython
-hitchrun
 hitchserve
-hitchtrigger
+hitchstory
+hitchrun
+hitchdoc
 flake8
+jupyter_console
+twine
+simex
+q
