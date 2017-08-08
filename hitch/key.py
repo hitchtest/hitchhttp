@@ -27,6 +27,7 @@ class Engine(BaseEngine):
         preconditions=Map({
             "example.yaml": Str(),
             "code": Str(),
+            "analysis_code": Str(),
         }),
         params=Map({
             "python version": Str(),
@@ -43,6 +44,12 @@ class Engine(BaseEngine):
 
     def set_up(self):
         """Set up your applications and the test environment."""
+        self.path.state = self.path.gen.joinpath("state")
+        
+        if self.path.state.exists():
+            self.path.state.rmtree()
+        self.path.state.mkdir()
+
         self.python_package = hitchpython.PythonPackage(
             self.preconditions.get('python_version', '3.5.0')
         )
@@ -62,8 +69,8 @@ class Engine(BaseEngine):
                 run(self.pip("uninstall", "hitchhttp", "-y").ignore_errors())
                 run(self.pip("install", ".").in_dir(self.path.project))
         
-        self.path.gen.joinpath("example.yaml").write_text(self.preconditions['example.yaml'])
-        self.path.gen.joinpath("myserver.py").write_text(self.preconditions['code'])
+        self.path.state.joinpath("example.yaml").write_text(self.preconditions['example.yaml'])
+        self.path.state.joinpath("myserver.py").write_text(self.preconditions['code'])
         
         self.services = hitchserve.ServiceBundle(
             str(self.path.project),
@@ -74,7 +81,7 @@ class Engine(BaseEngine):
     
     def server_starts(self, message=""):
         self.services['Server'] = hitchserve.Service(
-            command=self.python(self.path.gen.joinpath("myserver.py")).in_dir(self.path.gen),
+            command=self.python(self.path.state.joinpath("myserver.py")).in_dir(self.path.state),
             log_line_ready_checker=lambda line: message in line,
         )
         self.services.startup(interactive=False)
@@ -155,7 +162,7 @@ class Engine(BaseEngine):
             pass
 
         error_path = self.path.state.joinpath("error.txt")
-        runpy = self.path.gen.joinpath("runmypy.py")
+        runpy = self.path.state.joinpath("runmypy.py")
         if error_path.exists():
             error_path.remove()
         env = Environment()
@@ -186,8 +193,8 @@ class Engine(BaseEngine):
         class UnexpectedException(Exception):
             pass
 
-        error_path = self.path.gen.joinpath("error.txt")
-        runpy = self.path.gen.joinpath("runmypy.py")
+        error_path = self.path.state.joinpath("error.txt")
+        runpy = self.path.state.joinpath("runmypy.py")
         if error_path.exists():
             error_path.remove()
         env = Environment()
@@ -204,6 +211,10 @@ class Engine(BaseEngine):
         self.python(runpy).run()
         if error_path.exists():
             raise UnexpectedException(error_path.bytes().decode("utf8"))
+
+    def run_analysis_code(self):
+        self.path.state.joinpath("analysis.py").write_text(self.preconditions['analysis_code'])
+        self.python(self.path.state.joinpath("analysis.py")).run()
 
 
     def returns_true(self, command, why=''):

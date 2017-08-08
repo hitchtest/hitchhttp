@@ -8,3 +8,4 @@ state/
 hitchhttp.egg-info/
 .hitch
 hitch/gen
+hitchhttp/sqlite.db
